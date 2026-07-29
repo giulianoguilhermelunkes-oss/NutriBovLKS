@@ -1,0 +1,2011 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Sistema profissional de formulação de rações para ruminantes">
+<meta name="theme-color" content="#1a5d1a">
+<title>NutriRação Pro - Formulação de Rações</title>
+<style>
+/*============================================
+  CSS RESET & CUSTOM PROPERTIES
+============================================*/
+:root{
+  --primary:#1a5d1a;--primary-light:#2e7d2e;--primary-dark:#0d3b0d;
+  --primary-bg:rgba(26,93,26,.08);--secondary:#f4a261;--secondary-dark:#e76f51;
+  --accent:#2a9d8f;--accent-light:rgba(42,157,143,.1);
+  --success:#27ae60;--warning:#f39c12;--danger:#e74c3c;--info:#3498db;
+  --bg:#f0f2f5;--bg-card:#ffffff;--bg-sidebar:#0d3b0d;
+  --text:#1a1a2e;--text-secondary:#5a6172;--text-muted:#8b95a5;
+  --border:#e2e6ea;--border-light:#f0f2f5;
+  --shadow:0 2px 8px rgba(0,0,0,.08);--shadow-md:0 4px 16px rgba(0,0,0,.1);
+  --shadow-lg:0 8px 32px rgba(0,0,0,.12);
+  --radius:10px;--radius-sm:6px;--radius-lg:14px;
+  --sidebar-w:260px;--header-h:60px;
+  --transition:all .3s cubic-bezier(.4,0,.2,1);
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+}
+[data-theme="dark"]{
+  --bg:#0f1117;--bg-card:#1a1d27;--bg-sidebar:#0a0c10;
+  --text:#e4e6eb;--text-secondary:#a0a8b8;--text-muted:#6b7385;
+  --border:#2a2d37;--border-light:#1e2028;
+  --shadow:0 2px 8px rgba(0,0,0,.3);--shadow-md:0 4px 16px rgba(0,0,0,.4);
+  --primary-bg:rgba(26,93,26,.15);--accent-light:rgba(42,157,143,.15);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{font-size:15px;scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;min-height:100vh}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;background:none;font-family:inherit}
+input,select,textarea{font-family:inherit;font-size:inherit}
+ul,ol{list-style:none}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--text-muted);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--text-secondary)}
+
+/*============================================
+  LAYOUT
+============================================*/
+.app{display:flex;min-height:100vh}
+
+/*============================================
+  SIDEBAR
+============================================*/
+.sidebar{
+  width:var(--sidebar-w);position:fixed;top:0;left:0;height:100vh;
+  background:linear-gradient(180deg,#0d3b0d 0%,#1a5d1a 40%,#0d3b0d 100%);
+  z-index:1000;transition:var(--transition);display:flex;flex-direction:column;
+  overflow:hidden;border-right:1px solid rgba(255,255,255,.05);
+}
+.sidebar.collapsed{width:64px}
+.sidebar-header{
+  padding:16px;display:flex;align-items:center;gap:10px;
+  border-bottom:1px solid rgba(255,255,255,.1);min-height:var(--header-h);
+}
+.sidebar-logo{
+  width:34px;height:34px;background:#fff;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;color:var(--primary);font-size:16px;flex-shrink:0;
+}
+.sidebar-brand{color:#fff;font-size:14px;font-weight:700;white-space:nowrap;transition:var(--transition)}
+.sidebar-brand small{display:block;font-size:10px;font-weight:400;opacity:.7}
+.collapsed .sidebar-brand{opacity:0;width:0}
+.sidebar-nav{flex:1;overflow-y:auto;padding:8px 0}
+.sidebar-nav::-webkit-scrollbar{width:0}
+.nav-section{
+  padding:12px 16px 4px;font-size:10px;text-transform:uppercase;
+  letter-spacing:1.5px;color:rgba(255,255,255,.35);font-weight:600;white-space:nowrap;
+}
+.collapsed .nav-section{opacity:0}
+.nav-item{
+  display:flex;align-items:center;gap:10px;padding:9px 16px;
+  color:rgba(255,255,255,.7);cursor:pointer;transition:all .15s ease;
+  margin:1px 8px;border-radius:var(--radius-sm);white-space:nowrap;
+  font-size:13px;position:relative;
+}
+.nav-item:hover{background:rgba(255,255,255,.1);color:#fff}
+.nav-item.active{background:rgba(255,255,255,.15);color:#fff;font-weight:600}
+.nav-item.active::before{
+  content:'';position:absolute;left:-8px;top:50%;transform:translateY(-50%);
+  width:3px;height:20px;background:#fff;border-radius:0 3px 3px 0;
+}
+.nav-item .icon{width:20px;text-align:center;flex-shrink:0;font-size:16px}
+.nav-item .label{transition:var(--transition)}
+.collapsed .nav-item .label{opacity:0;width:0}
+.nav-item .badge{
+  margin-left:auto;background:var(--danger);color:#fff;
+  font-size:10px;padding:1px 6px;border-radius:10px;font-weight:600;
+}
+.collapsed .nav-item .badge{display:none}
+.sidebar-footer{padding:12px;border-top:1px solid rgba(255,255,255,.1)}
+.sidebar-toggle{
+  width:100%;padding:8px;color:rgba(255,255,255,.5);
+  border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;
+}
+.sidebar-toggle:hover{background:rgba(255,255,255,.1);color:#fff}
+
+/*============================================
+  MAIN
+============================================*/
+.main{margin-left:var(--sidebar-w);flex:1;min-height:100vh;transition:var(--transition)}
+.sidebar.collapsed~.main{margin-left:64px}
+
+/*============================================
+  HEADER
+============================================*/
+.header{
+  height:var(--header-h);background:var(--bg-card);
+  border-bottom:1px solid var(--border);display:flex;
+  align-items:center;justify-content:space-between;padding:0 20px;
+  position:sticky;top:0;z-index:100;
+  backdrop-filter:blur(10px);
+}
+.header-left{display:flex;align-items:center;gap:12px}
+.mobile-menu{display:none;font-size:22px;color:var(--text);padding:4px}
+.header-search{position:relative}
+.header-search input{
+  width:280px;padding:8px 14px 8px 36px;border:1px solid var(--border);
+  border-radius:20px;background:var(--bg);color:var(--text);font-size:13px;
+  transition:var(--transition);
+}
+.header-search input:focus{outline:none;border-color:var(--primary);width:340px;box-shadow:0 0 0 3px var(--primary-bg)}
+.header-search .si{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:14px}
+.header-right{display:flex;align-items:center;gap:6px}
+.h-btn{
+  width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+  border-radius:8px;color:var(--text-secondary);transition:all .15s;font-size:18px;position:relative;
+}
+.h-btn:hover{background:var(--bg);color:var(--text)}
+.notif-dot{
+  position:absolute;top:6px;right:6px;width:7px;height:7px;
+  background:var(--danger);border-radius:50%;border:2px solid var(--bg-card);
+}
+.user-pill{
+  display:flex;align-items:center;gap:8px;padding:4px 10px 4px 4px;
+  border-radius:20px;cursor:pointer;transition:all .15s;
+}
+.user-pill:hover{background:var(--bg)}
+.user-avatar{
+  width:32px;height:32px;border-radius:50%;
+  background:linear-gradient(135deg,var(--primary),var(--accent));
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:600;font-size:12px;
+}
+.user-name{font-size:12px;font-weight:600;color:var(--text)}
+.user-role{font-size:10px;color:var(--text-muted)}
+
+/*============================================
+  PAGE
+============================================*/
+.page{padding:20px;animation:fadeIn .3s ease}
+.page-section{display:none}
+.page-section.active{display:block}
+.page-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.page-title{font-size:22px;font-weight:700}
+.page-sub{font-size:13px;color:var(--text-secondary);margin-top:2px}
+
+/*============================================
+  BUTTONS
+============================================*/
+.btn{
+  display:inline-flex;align-items:center;gap:6px;padding:9px 18px;
+  border-radius:var(--radius-sm);font-size:13px;font-weight:500;
+  transition:all .15s;white-space:nowrap;
+}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-light);transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.btn-success{background:var(--success);color:#fff}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-warning{background:var(--warning);color:#fff}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-outline:hover{background:var(--bg)}
+.btn-ghost{color:var(--text-secondary)}
+.btn-ghost:hover{background:var(--bg);color:var(--text)}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-icon{padding:7px;width:32px;height:32px;justify-content:center}
+
+/*============================================
+  CARDS
+============================================*/
+.card{
+  background:var(--bg-card);border-radius:var(--radius);
+  border:1px solid var(--border);padding:18px;transition:var(--transition);
+}
+.card:hover{box-shadow:var(--shadow-md)}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.card-title{font-size:15px;font-weight:600}
+
+/*============================================
+  STATS
+============================================*/
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:20px}
+.stat{
+  background:var(--bg-card);border-radius:var(--radius);border:1px solid var(--border);
+  padding:16px;display:flex;align-items:flex-start;justify-content:space-between;
+  transition:var(--transition);position:relative;overflow:hidden;
+}
+.stat::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;border-radius:4px 0 0 4px}
+.stat.green::before{background:var(--success)}
+.stat.blue::before{background:var(--info)}
+.stat.orange::before{background:var(--warning)}
+.stat.red::before{background:var(--danger)}
+.stat.purple::before{background:#8b5cf6}
+.stat.teal::before{background:var(--accent)}
+.stat:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.stat-info h3{font-size:12px;color:var(--text-secondary);font-weight:500;margin-bottom:2px}
+.stat-val{font-size:24px;font-weight:700;line-height:1.2}
+.stat-sub{font-size:11px;color:var(--text-muted);margin-top:2px}
+.stat-icon{
+  width:42px;height:42px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+}
+.stat-icon.green{background:rgba(39,174,96,.1);color:var(--success)}
+.stat-icon.blue{background:rgba(52,152,219,.1);color:var(--info)}
+.stat-icon.orange{background:rgba(243,156,18,.1);color:var(--warning)}
+.stat-icon.red{background:rgba(231,76,60,.1);color:var(--danger)}
+.stat-icon.purple{background:rgba(139,92,246,.1);color:#8b5cf6}
+.stat-icon.teal{background:var(--accent-light);color:var(--accent)}
+
+/*============================================
+  GRID
+============================================*/
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+
+/*============================================
+  FORMS
+============================================*/
+.fg{margin-bottom:14px}
+.fl{display:block;font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px}
+.fl .req{color:var(--danger)}
+.fc{
+  width:100%;padding:9px 12px;border:1px solid var(--border);
+  border-radius:var(--radius-sm);background:var(--bg-card);
+  color:var(--text);font-size:13px;transition:var(--transition);
+}
+.fc:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-bg)}
+.fc::placeholder{color:var(--text-muted)}
+textarea.fc{resize:vertical;min-height:80px}
+select.fc{
+  cursor:pointer;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;padding-right:32px;
+}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.fr4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+
+/*============================================
+  TABLES
+============================================*/
+.tbl-wrap{overflow-x:auto;border-radius:var(--radius)}
+table{width:100%;border-collapse:collapse}
+thead th{
+  padding:10px 14px;text-align:left;font-size:11px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);
+  border-bottom:2px solid var(--border);background:var(--bg);white-space:nowrap;
+}
+tbody td{padding:10px 14px;font-size:13px;border-bottom:1px solid var(--border)}
+tbody tr{transition:all .1s}
+tbody tr:hover{background:var(--primary-bg)}
+
+/*============================================
+  BADGES
+============================================*/
+.badge{
+  display:inline-flex;align-items:center;gap:3px;padding:3px 9px;
+  border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap;
+}
+.badge-green{background:rgba(39,174,96,.1);color:var(--success)}
+.badge-red{background:rgba(231,76,60,.1);color:var(--danger)}
+.badge-yellow{background:rgba(243,156,18,.1);color:#d68910}
+.badge-blue{background:rgba(52,152,219,.1);color:var(--info)}
+.badge-purple{background:rgba(139,92,246,.1);color:#8b5cf6}
+.badge-gray{background:var(--bg);color:var(--text-secondary)}
+.badge-teal{background:var(--accent-light);color:var(--accent)}
+
+/*============================================
+  MODAL
+============================================*/
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);
+  z-index:2000;display:none;align-items:center;justify-content:center;padding:16px;
+}
+.modal-overlay.active{display:flex}
+.modal{
+  background:var(--bg-card);border-radius:var(--radius-lg);width:100%;max-width:640px;
+  max-height:90vh;overflow:hidden;display:flex;flex-direction:column;
+  box-shadow:var(--shadow-lg);animation:slideUp .3s ease;
+}
+.modal-lg{max-width:900px}
+.modal-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px;border-bottom:1px solid var(--border);
+}
+.modal-title{font-size:16px;font-weight:600}
+.modal-close{
+  width:30px;height:30px;display:flex;align-items:center;justify-content:center;
+  border-radius:6px;color:var(--text-muted);font-size:18px;transition:all .15s;
+}
+.modal-close:hover{background:var(--bg);color:var(--text)}
+.modal-body{padding:20px;overflow-y:auto;flex:1}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+
+/*============================================
+  TOAST
+============================================*/
+.toast-box{position:fixed;top:16px;right:16px;z-index:3000;display:flex;flex-direction:column;gap:6px}
+.toast{
+  background:var(--bg-card);border-radius:var(--radius-sm);padding:12px 16px;
+  display:flex;align-items:center;gap:10px;box-shadow:var(--shadow-lg);
+  border:1px solid var(--border);min-width:280px;max-width:380px;
+  animation:slideInRight .3s ease;position:relative;overflow:hidden;
+}
+.toast::before{content:'';position:absolute;left:0;top:0;width:4px;height:100%}
+.toast.success::before{background:var(--success)}
+.toast.error::before{background:var(--danger)}
+.toast.warning::before{background:var(--warning)}
+.toast.info::before{background:var(--info)}
+.toast-icon{font-size:18px;flex-shrink:0}
+.toast.success .toast-icon{color:var(--success)}
+.toast.error .toast-icon{color:var(--danger)}
+.toast.warning .toast-icon{color:var(--warning)}
+.toast.info .toast-icon{color:var(--info)}
+.toast-cnt{flex:1}
+.toast-title{font-size:13px;font-weight:600}
+.toast-msg{font-size:12px;color:var(--text-secondary)}
+.toast-x{color:var(--text-muted);cursor:pointer;font-size:14px;padding:2px}
+.toast-x:hover{color:var(--text)}
+.toast-bar{position:absolute;bottom:0;left:0;height:2px;background:var(--primary);animation:toastBar 4s linear forwards}
+
+/*============================================
+  PROGRESS BAR
+============================================*/
+.progress{width:100%;height:8px;background:var(--bg);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;border-radius:4px;transition:width .5s ease}
+.progress-fill.green{background:var(--success)}
+.progress-fill.yellow{background:var(--warning)}
+.progress-fill.red{background:var(--danger)}
+.progress-fill.blue{background:var(--info)}
+
+/*============================================
+  NUTRIENT INDICATOR
+============================================*/
+.nut-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-light)}
+.nut-name{flex:1;font-size:12px;font-weight:500;min-width:100px}
+.nut-bar{flex:2;position:relative}
+.nut-vals{display:flex;gap:12px;font-size:11px;min-width:160px}
+.nut-val{font-weight:600}
+.nut-req{color:var(--text-muted)}
+.nut-pct{font-weight:600;min-width:40px;text-align:right}
+.nut-status{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.nut-status.ok{background:var(--success)}
+.nut-status.warn{background:var(--warning)}
+.nut-status.bad{background:var(--danger)}
+
+/*============================================
+  CHART
+============================================*/
+.chart-box{position:relative;width:100%;max-height:300px}
+canvas{width:100%!important;max-height:300px}
+
+/*============================================
+  FORMULA TABLE
+============================================*/
+.formula-tbl{width:100%;border-collapse:collapse}
+.formula-tbl th{
+  padding:8px 10px;text-align:left;font-size:11px;font-weight:600;
+  text-transform:uppercase;color:var(--text-muted);border-bottom:2px solid var(--border);
+  background:var(--bg);position:sticky;top:0;
+}
+.formula-tbl td{padding:6px 10px;font-size:12px;border-bottom:1px solid var(--border-light)}
+.formula-tbl tr:hover{background:var(--primary-bg)}
+.formula-tbl input{
+  width:70px;padding:4px 6px;border:1px solid var(--border);border-radius:4px;
+  background:var(--bg-card);color:var(--text);font-size:12px;text-align:center;
+}
+.formula-tbl input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 2px var(--primary-bg)}
+
+/*============================================
+  TABS
+============================================*/
+.tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:16px;gap:0;overflow-x:auto}
+.tab{
+  padding:10px 20px;font-size:13px;color:var(--text-secondary);font-weight:500;
+  position:relative;transition:all .15s;white-space:nowrap;
+}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--primary);font-weight:600}
+.tab.active::after{
+  content:'';position:absolute;bottom:-2px;left:0;right:0;
+  height:2px;background:var(--primary);border-radius:2px 2px 0 0;
+}
+.tab-content{display:none;animation:fadeIn .3s}
+.tab-content.active{display:block}
+
+/*============================================
+  SETTINGS TOGGLE
+============================================*/
+.toggle{position:relative;width:40px;height:22px;cursor:pointer}
+.toggle input{display:none}
+.toggle-slider{
+  position:absolute;inset:0;background:var(--border);border-radius:11px;transition:var(--transition);
+}
+.toggle-slider::before{
+  content:'';position:absolute;width:16px;height:16px;border-radius:50%;
+  background:#fff;top:3px;left:3px;transition:var(--transition);box-shadow:var(--shadow);
+}
+.toggle input:checked+.toggle-slider{background:var(--primary)}
+.toggle input:checked+.toggle-slider::before{transform:translateX(18px)}
+
+/*============================================
+  CONFIRM
+============================================*/
+.confirm-body{text-align:center;padding:16px}
+.confirm-body .ci{font-size:40px;margin-bottom:12px}
+.confirm-body h3{font-size:16px;margin-bottom:6px}
+.confirm-body p{color:var(--text-secondary);font-size:13px;margin-bottom:20px}
+.confirm-acts{display:flex;gap:10px;justify-content:center}
+
+/*============================================
+  TOOLBAR
+============================================*/
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.toolbar-search{position:relative;flex:1;min-width:180px;max-width:320px}
+.toolbar-search input{
+  width:100%;padding:8px 12px 8px 34px;border:1px solid var(--border);
+  border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text);font-size:13px;
+}
+.toolbar-search input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-bg)}
+.toolbar-search .si{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-muted)}
+.filter-sel{
+  padding:8px 28px 8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);
+  background:var(--bg-card);color:var(--text);font-size:13px;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 8px center;cursor:pointer;
+}
+
+/*============================================
+  EMPTY
+============================================*/
+.empty{text-align:center;padding:50px 16px}
+.empty .ei{font-size:50px;margin-bottom:12px;opacity:.3}
+.empty h3{font-size:16px;margin-bottom:6px}
+.empty p{color:var(--text-secondary);font-size:13px;margin-bottom:16px}
+
+/*============================================
+  MOBILE OVERLAY
+============================================*/
+.mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:900}
+.mob-overlay.active{display:block}
+
+/*============================================
+  ANIMATIONS
+============================================*/
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideInRight{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes toastBar{from{width:100%}to{width:0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/*============================================
+  RESPONSIVE
+============================================*/
+@media(max-width:1024px){
+  .g3,.g4{grid-template-columns:1fr 1fr}
+  .fr3,.fr4{grid-template-columns:1fr 1fr}
+  .stats{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);z-index:2000}
+  .sidebar.mob-open{transform:translateX(0)}
+  .main{margin-left:0!important}
+  .mobile-menu{display:flex}
+  .header-search input{width:160px}
+  .header-search input:focus{width:200px}
+  .g2,.g3,.g4{grid-template-columns:1fr}
+  .fr,.fr3,.fr4{grid-template-columns:1fr}
+  .stats{grid-template-columns:1fr}
+  .page{padding:14px}
+  .page-hdr{flex-direction:column;align-items:flex-start}
+  .user-name,.user-role{display:none}
+  .modal{margin:8px}
+}
+@media print{
+  .sidebar,.header,.mob-overlay,.toast-box,.modal-overlay{display:none!important}
+  .main{margin-left:0!important}
+  .card{break-inside:avoid;box-shadow:none;border:1px solid #ddd}
+}
+</style>
+</head>
+<body>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-box" id="toastBox"></div>
+<!-- MOBILE OVERLAY -->
+<div class="mob-overlay" id="mobOverlay"></div>
+
+<div class="app">
+<!-- ============ SIDEBAR ============ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">🐄</div>
+    <span class="sidebar-brand">NutriRação Pro<small>Formulação de Rações</small></span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Principal</div>
+    <div class="nav-item active" data-page="dashboard"><span class="icon">📊</span><span class="label">Dashboard</span></div>
+    <div class="nav-item" data-page="nova-formulacao"><span class="icon">🧪</span><span class="label">Nova Formulação</span></div>
+    <div class="nav-item" data-page="ingredientes"><span class="icon">🌾</span><span class="label">Ingredientes</span></div>
+    <div class="nav-item" data-page="banco-nutricional"><span class="icon">📋</span><span class="label">Banco Nutricional</span></div>
+    <div class="nav-section">Análise</div>
+    <div class="nav-item" data-page="exigencias"><span class="icon">📐</span><span class="label">Exigências Nutricionais</span></div>
+    <div class="nav-item" data-page="custos"><span class="icon">💰</span><span class="label">Custos</span></div>
+    <div class="nav-item" data-page="relatorios"><span class="icon">📈</span><span class="label">Relatórios</span></div>
+    <div class="nav-section">Sistema</div>
+    <div class="nav-item" data-page="configuracoes"><span class="icon">⚙️</span><span class="label">Configurações</span></div>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="sidebar-toggle" id="sidebarToggle"><span id="togIcon">◀</span></button>
+  </div>
+</aside>
+
+<!-- ============ MAIN ============ -->
+<div class="main">
+  <header class="header">
+    <div class="header-left">
+      <button class="mobile-menu" id="mobMenuBtn">☰</button>
+      <div class="header-search">
+        <span class="si">🔍</span>
+        <input type="text" id="globalSearch" placeholder="Pesquisar ingredientes, formulações...">
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="h-btn" id="themeBtn" title="Alternar tema"><span id="themeIco">🌙</span></button>
+      <button class="h-btn" title="Notificações">🔔<span class="notif-dot"></span></button>
+      <div class="user-pill">
+        <div class="user-avatar">NR</div>
+        <div><div class="user-name">Nutricionista</div><div class="user-role">Zootecnista</div></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========== DASHBOARD ========== -->
+  <div class="page-section active" id="pg-dashboard">
+    <div class="page">
+      <div class="page-hdr">
+        <div><h1 class="page-title">Dashboard</h1><p class="page-sub">Visão geral das formulações</p></div>
+        <button class="btn btn-primary" onclick="nav('nova-formulacao')">🧪 Nova Formulação</button>
+      </div>
+      <div class="stats" id="dashStats"></div>
+      <div class="g2" style="margin-bottom:16px">
+        <div class="card"><div class="card-hdr"><h3 class="card-title">📊 Composição da Dieta Atual</h3></div><div class="chart-box"><canvas id="chartDietComp"></canvas></div></div>
+        <div class="card"><div class="card-hdr"><h3 class="card-title">📈 Atendimento Nutricional</h3></div><div class="chart-box"><canvas id="chartNutMet"></canvas></div></div>
+      </div>
+      <div class="g2">
+        <div class="card"><div class="card-hdr"><h3 class="card-title">💰 Custo por Categoria</h3></div><div class="chart-box"><canvas id="chartCostCat"></canvas></div></div>
+        <div class="card"><div class="card-hdr"><h3 class="card-title">🕐 Últimas Formulações</h3></div><div id="recentFormulas"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== NOVA FORMULAÇÃO ========== -->
+  <div class="page-section" id="pg-nova-formulacao">
+    <div class="page">
+      <div class="page-hdr">
+        <div><h1 class="page-title">Nova Formulação</h1><p class="page-sub">Configure o animal e formule a dieta</p></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-outline" onclick="resetFormula()">🔄 Limpar</button>
+          <button class="btn btn-primary" onclick="saveFormula()">💾 Salvar Formulação</button>
+        </div>
+      </div>
+      <!-- TABS -->
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('animal',this)">🐄 Animal</button>
+        <button class="tab" onclick="switchTab('metas',this)">🎯 Metas</button>
+        <button class="tab" onclick="switchTab('ingredsel',this)">🌾 Ingredientes</button>
+        <button class="tab" onclick="switchTab('resultado',this)">📊 Resultado</button>
+      </div>
+      <!-- TAB: ANIMAL -->
+      <div class="tab-content active" id="tab-animal">
+        <div class="card">
+          <div class="card-hdr"><h3 class="card-title">Cadastro do Animal</h3></div>
+          <div class="fr3">
+            <div class="fg"><label class="fl">Espécie <span class="req">*</span></label>
+              <select class="fc" id="animalEspecie" onchange="calcExigencias()">
+                <option value="bovinos">Bovinos</option><option value="ovinos">Ovinos</option>
+                <option value="caprinos">Caprinos</option><option value="bubalinos">Bubalinos</option>
+                <option value="equinos">Equinos</option>
+              </select>
+            </div>
+            <div class="fg"><label class="fl">Sexo</label>
+              <select class="fc" id="animalSexo" onchange="calcExigencias()"><option value="macho">Macho</option><option value="femea">Fêmea</option></select>
+            </div>
+            <div class="fg"><label class="fl">Raça</label><input type="text" class="fc" id="animalRaca" placeholder="Ex: Nelore, Angus..." onchange="calcExigencias()"></div>
+          </div>
+          <div class="fr3">
+            <div class="fg"><label class="fl">Idade (meses)</label><input type="number" class="fc" id="animalIdade" placeholder="24" min="0" onchange="calcExigencias()"></div>
+            <div class="fg"><label class="fl">Peso Vivo (kg) <span class="req">*</span></label><input type="number" class="fc" id="animalPeso" placeholder="450" min="1" onchange="calcExigencias()"></div>
+            <div class="fg"><label class="fl">Estado Fisiológico</label>
+              <select class="fc" id="animalEstado" onchange="calcExigencias()">
+                <option value="crescimento">Crescimento</option><option value="recria">Recria</option>
+                <option value="engorda">Engorda</option><option value="terminacao">Terminação</option>
+                <option value="gestacao">Gestação</option><option value="lactacao">Lactação</option>
+                <option value="reproducao">Reprodução</option><option value="manutencao">Manutenção</option>
+              </select>
+            </div>
+          </div>
+          <div class="fg"><label class="fl">Objetivo da Produção</label>
+            <select class="fc" id="animalObjetivo" onchange="calcExigencias()">
+              <option value="manutencao">Manutenção</option><option value="recria">Recria</option>
+              <option value="engorda_confinamento">Engorda em Confinamento</option>
+              <option value="terminacao_intensiva">Terminação Intensiva</option>
+              <option value="reproducao">Reprodução</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <!-- TAB: METAS -->
+      <div class="tab-content" id="tab-metas">
+        <div class="card">
+          <div class="card-hdr"><h3 class="card-title">🎯 Metas de Desempenho</h3></div>
+          <div class="fr3">
+            <div class="fg"><label class="fl">GMD (kg/dia)</label><input type="number" class="fc" id="metaGMD" value="1.2" step="0.1" min="0" onchange="calcExigencias()"></div>
+            <div class="fg"><label class="fl">Dias de Confinamento</label><input type="number" class="fc" id="metaDias" value="90" min="1" onchange="calcExigencias()"></div>
+            <div class="fg"><label class="fl">Peso Inicial (kg)</label><input type="number" class="fc" id="metaPesoIni" value="350" min="1" onchange="calcExigencias()"></div>
+          </div>
+          <div class="fr3">
+            <div class="fg"><label class="fl">Peso Final Desejado (kg)</label><input type="number" class="fc" id="metaPesoFin" value="550" min="1" onchange="calcExigencias()"></div>
+            <div class="fg"><label class="fl">Conversão Alimentar</label><input type="number" class="fc" id="metaCA" value="6.5" step="0.1" min="0" readonly></div>
+            <div class="fg"><label class="fl">Consumo MS (%PV)</label><input type="number" class="fc" id="metaCMSpv" value="2.5" step="0.1" min="0" onchange="calcExigencias()"></div>
+          </div>
+          <div class="fr">
+            <div class="fg"><label class="fl">Consumo Previsto (kg MS/dia)</label><input type="number" class="fc" id="metaCMS" readonly></div>
+            <div class="fg"><label class="fl">Ganho Total Estimado (kg)</label><input type="number" class="fc" id="metaGanhoTotal" readonly></div>
+          </div>
+        </div>
+        <!-- EXIGÊNCIAS CALCULADAS -->
+        <div class="card" style="margin-top:16px">
+          <div class="card-hdr"><h3 class="card-title">📐 Exigências Nutricionais Calculadas</h3></div>
+          <div id="exigCalcContainer"></div>
+        </div>
+      </div>
+      <!-- TAB: INGREDIENTES SELEÇÃO -->
+      <div class="tab-content" id="tab-ingredsel">
+        <div class="g2">
+          <div class="card">
+            <div class="card-hdr"><h3 class="card-title">🌾 Ingredientes Disponíveis</h3></div>
+            <div class="toolbar" style="margin-bottom:10px">
+              <div class="toolbar-search" style="max-width:100%;flex:1">
+                <span class="si">🔍</span>
+                <input type="text" id="ingSearchFormula" placeholder="Pesquisar ingredientes..." oninput="renderIngredientSelector()">
+              </div>
+              <select class="filter-sel" id="ingCatFilter" onchange="renderIngredientSelector()">
+                <option value="">Todas Categorias</option>
+                <option value="Volumosos">Volumosos</option>
+                <option value="Fontes Energéticas">Fontes Energéticas</option>
+                <option value="Fontes Proteicas">Fontes Proteicas</option>
+                <option value="Coprodutos Industriais">Coprodutos Industriais</option>
+                <option value="NNP">NNP</option>
+                <option value="Gorduras">Gorduras</option>
+                <option value="Minerais">Minerais</option>
+                <option value="Vitaminas">Vitaminas</option>
+                <option value="Aditivos">Aditivos</option>
+                <option value="Núcleos">Núcleos</option>
+              </select>
+            </div>
+            <div class="tbl-wrap" style="max-height:400px;overflow-y:auto">
+              <table><thead><tr><th>Ingrediente</th><th>Categoria</th><th>PB%</th><th>NDT%</th><th>R$/kg</th><th></th></tr></thead>
+              <tbody id="ingSelectBody"></tbody></table>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><h3 class="card-title">📋 Dieta Formulada</h3><button class="btn btn-sm btn-outline" onclick="autoBalance()">⚖️ Auto-Balancear</button></div>
+            <div class="tbl-wrap" style="max-height:350px;overflow-y:auto">
+              <table class="formula-tbl"><thead><tr><th>Ingrediente</th><th>% Inclusão</th><th>kg/dia</th><th>R$/dia</th><th></th></tr></thead>
+              <tbody id="formulaBody"></tbody></table>
+            </div>
+            <div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+              <div><strong>Total: <span id="formulaTotal">0.00</span>%</strong></div>
+              <div class="badge" id="formulaStatusBadge">-</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- TAB: RESULTADO -->
+      <div class="tab-content" id="tab-resultado">
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-hdr"><h3 class="card-title">📊 Atendimento das Exigências Nutricionais</h3></div>
+          <div id="resultNutContainer"></div>
+        </div>
+        <div class="g2">
+          <div class="card">
+            <div class="card-hdr"><h3 class="card-title">💰 Resumo de Custos</h3></div>
+            <div id="resultCostContainer"></div>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><h3 class="card-title">📊 Distribuição dos Ingredientes</h3></div>
+            <div class="chart-box"><canvas id="chartFormulaPie"></canvas></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== INGREDIENTES ========== -->
+  <div class="page-section" id="pg-ingredientes">
+    <div class="page">
+      <div class="page-hdr">
+        <div><h1 class="page-title">Ingredientes</h1><p class="page-sub">Banco de dados de ingredientes</p></div>
+        <button class="btn btn-primary" onclick="openModal('ingModal')">+ Novo Ingrediente</button>
+      </div>
+      <div class="toolbar">
+        <div class="toolbar-search"><span class="si">🔍</span><input type="text" id="ingSearch" placeholder="Pesquisar..." oninput="renderIngredients()"></div>
+        <select class="filter-sel" id="ingCatFilterMain" onchange="renderIngredients()">
+          <option value="">Todas Categorias</option>
+          <option value="Volumosos">Volumosos</option><option value="Fontes Energéticas">Fontes Energéticas</option>
+          <option value="Fontes Proteicas">Fontes Proteicas</option><option value="Coprodutos Industriais">Coprodutos Industriais</option>
+          <option value="NNP">NNP</option><option value="Gorduras">Gorduras</option><option value="Minerais">Minerais</option>
+          <option value="Vitaminas">Vitaminas</option><option value="Aditivos">Aditivos</option><option value="Núcleos">Núcleos</option>
+        </select>
+      </div>
+      <div class="card"><div class="tbl-wrap">
+        <table><thead><tr>
+          <th>Nome</th><th>Categoria</th><th>MS%</th><th>PB%</th><th>NDT%</th><th>FDN%</th><th>Ca%</th><th>P%</th><th>R$/kg</th><th>Ações</th>
+        </tr></thead><tbody id="ingTableBody"></tbody></table>
+      </div>
+      <div class="empty" id="ingEmpty" style="display:none"><div class="ei">🌾</div><h3>Nenhum ingrediente</h3><p>Adicione ingredientes ao banco</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== BANCO NUTRICIONAL ========== -->
+  <div class="page-section" id="pg-banco-nutricional">
+    <div class="page">
+      <div class="page-hdr">
+        <div><h1 class="page-title">Banco Nutricional</h1><p class="page-sub">Composição nutricional completa dos ingredientes</p></div>
+      </div>
+      <div class="toolbar">
+        <div class="toolbar-search"><span class="si">🔍</span><input type="text" id="bancoSearch" placeholder="Pesquisar..." oninput="renderBancoNutricional()"></div>
+      </div>
+      <div class="card"><div class="tbl-wrap" style="max-height:600px;overflow:auto">
+        <table><thead><tr>
+          <th>Nome</th><th>MS</th><th>NDT</th><th>EM</th><th>EL</th><th>PB</th><th>PDR</th><th>PNDR</th>
+          <th>FDN</th><th>FDNe</th><th>FDA</th><th>Amido</th><th>EE</th>
+          <th>Ca</th><th>P</th><th>Mg</th><th>K</th><th>Na</th><th>S</th>
+        </tr></thead><tbody id="bancoBody"></tbody></table>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- ========== EXIGÊNCIAS ========== -->
+  <div class="page-section" id="pg-exigencias">
+    <div class="page">
+      <div class="page-hdr"><div><h1 class="page-title">Exigências Nutricionais</h1><p class="page-sub">Tabelas de referência por espécie e estado fisiológico</p></div></div>
+      <div class="card"><div id="exigRefContainer"></div></div>
+    </div>
+  </div>
+
+  <!-- ========== CUSTOS ========== -->
+  <div class="page-section" id="pg-custos">
+    <div class="page">
+      <div class="page-hdr">
+        <div><h1 class="page-title">Gestão de Custos</h1><p class="page-sub">Controle de preços e análise econômica</p></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-outline" onclick="document.getElementById('importFile').click()">📤 Importar Preços</button>
+          <input type="file" id="importFile" accept=".csv,.xlsx" style="display:none" onchange="importPrices(event)">
+        </div>
+      </div>
+      <div class="stats" id="costStats"></div>
+      <div class="card">
+        <div class="card-hdr"><h3 class="card-title">💰 Preços dos Ingredientes</h3></div>
+        <div class="tbl-wrap"><table><thead><tr>
+          <th>Ingrediente</th><th>R$/kg</th><th>R$/Saca</th><th>R$/Ton</th><th>Atualização</th><th>Ações</th>
+        </tr></thead><tbody id="costTableBody"></tbody></table></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== RELATÓRIOS ========== -->
+  <div class="page-section" id="pg-relatorios">
+    <div class="page">
+      <div class="page-hdr">
+        <div><h1 class="page-title">Relatórios</h1><p class="page-sub">Gere relatórios e exporte dados</p></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary" onclick="generatePDF()">📄 Gerar PDF</button>
+          <button class="btn btn-outline" onclick="exportExcel()">📊 Exportar Excel</button>
+          <button class="btn btn-outline" onclick="window.print()">🖨️ Imprimir</button>
+        </div>
+      </div>
+      <div class="g2">
+        <div class="card">
+          <div class="card-hdr"><h3 class="card-title">📋 Relatórios Disponíveis</h3></div>
+          <div id="reportsList"></div>
+        </div>
+        <div class="card">
+          <div class="card-hdr"><h3 class="card-title">📊 Histórico de Formulações</h3></div>
+          <div id="formulaHistory"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== CONFIGURAÇÕES ========== -->
+  <div class="page-section" id="pg-configuracoes">
+    <div class="page">
+      <div class="page-hdr"><div><h1 class="page-title">Configurações</h1><p class="page-sub">Personalize o sistema</p></div></div>
+      <div class="card">
+        <h3 class="card-title" style="margin-bottom:16px">🎨 Aparência</h3>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border-light)">
+          <div><strong style="font-size:13px">Tema Escuro</strong><p style="font-size:12px;color:var(--text-muted)">Alterne entre claro e escuro</p></div>
+          <label class="toggle"><input type="checkbox" id="darkToggle" onchange="toggleTheme()"><span class="toggle-slider"></span></label>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <h3 class="card-title" style="margin-bottom:16px">💾 Dados</h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="backupData()">📥 Backup</button>
+          <button class="btn btn-outline" onclick="document.getElementById('restoreFile').click()">📤 Restaurar</button>
+          <input type="file" id="restoreFile" accept=".json" style="display:none" onchange="restoreData(event)">
+          <button class="btn btn-danger" onclick="confirmClear()">🗑️ Limpar Dados</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ========== MODALS ========== -->
+<!-- INGREDIENT MODAL -->
+<div class="modal-overlay" id="ingModal">
+  <div class="modal modal-lg">
+    <div class="modal-hdr"><h2 class="modal-title" id="ingModalTitle">Novo Ingrediente</h2><button class="modal-close" onclick="closeModal('ingModal')">&times;</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="ingEditId">
+      <div class="fr3">
+        <div class="fg"><label class="fl">Nome <span class="req">*</span></label><input type="text" class="fc" id="ingName" required></div>
+        <div class="fg"><label class="fl">Categoria <span class="req">*</span></label>
+          <select class="fc" id="ingCat">
+            <option value="Volumosos">Volumosos</option><option value="Fontes Energéticas">Fontes Energéticas</option>
+            <option value="Fontes Proteicas">Fontes Proteicas</option><option value="Coprodutos Industriais">Coprodutos Industriais</option>
+            <option value="NNP">NNP</option><option value="Gorduras">Gorduras</option>
+            <option value="Minerais">Minerais</option><option value="Vitaminas">Vitaminas</option>
+            <option value="Aditivos">Aditivos</option><option value="Núcleos">Núcleos</option>
+            <option value="Ingredientes Especiais">Ingredientes Especiais</option>
+          </select>
+        </div>
+        <div class="fg"><label class="fl">Preço (R$/kg)</label><input type="number" class="fc" id="ingPreco" step="0.01" min="0"></div>
+      </div>
+      <h4 style="font-size:13px;margin:12px 0 8px;color:var(--primary)">Composição Nutricional (%MS)</h4>
+      <div class="fr4">
+        <div class="fg"><label class="fl">MS%</label><input type="number" class="fc" id="ingMS" step="0.1"></div>
+        <div class="fg"><label class="fl">NDT%</label><input type="number" class="fc" id="ingNDT" step="0.1"></div>
+        <div class="fg"><label class="fl">EM (Mcal/kg)</label><input type="number" class="fc" id="ingEM" step="0.01"></div>
+        <div class="fg"><label class="fl">EL (Mcal/kg)</label><input type="number" class="fc" id="ingEL" step="0.01"></div>
+      </div>
+      <div class="fr4">
+        <div class="fg"><label class="fl">PB%</label><input type="number" class="fc" id="ingPB" step="0.1"></div>
+        <div class="fg"><label class="fl">PDR%</label><input type="number" class="fc" id="ingPDR" step="0.1"></div>
+        <div class="fg"><label class="fl">PNDR%</label><input type="number" class="fc" id="ingPNDR" step="0.1"></div>
+        <div class="fg"><label class="fl">FDN%</label><input type="number" class="fc" id="ingFDN" step="0.1"></div>
+      </div>
+      <div class="fr4">
+        <div class="fg"><label class="fl">FDNe%</label><input type="number" class="fc" id="ingFDNe" step="0.1"></div>
+        <div class="fg"><label class="fl">FDA%</label><input type="number" class="fc" id="ingFDA" step="0.1"></div>
+        <div class="fg"><label class="fl">Amido%</label><input type="number" class="fc" id="ingAmido" step="0.1"></div>
+        <div class="fg"><label class="fl">EE%</label><input type="number" class="fc" id="ingEE" step="0.1"></div>
+      </div>
+      <h4 style="font-size:13px;margin:12px 0 8px;color:var(--primary)">Minerais</h4>
+      <div class="fr4">
+        <div class="fg"><label class="fl">Ca%</label><input type="number" class="fc" id="ingCa" step="0.01"></div>
+        <div class="fg"><label class="fl">P%</label><input type="number" class="fc" id="ingP" step="0.01"></div>
+        <div class="fg"><label class="fl">Mg%</label><input type="number" class="fc" id="ingMg" step="0.01"></div>
+        <div class="fg"><label class="fl">K%</label><input type="number" class="fc" id="ingK" step="0.01"></div>
+      </div>
+      <div class="fr4">
+        <div class="fg"><label class="fl">Na%</label><input type="number" class="fc" id="ingNa" step="0.01"></div>
+        <div class="fg"><label class="fl">Cl%</label><input type="number" class="fc" id="ingCl" step="0.01"></div>
+        <div class="fg"><label class="fl">S%</label><input type="number" class="fc" id="ingS" step="0.01"></div>
+        <div class="fg"><label class="fl">Zn (ppm)</label><input type="number" class="fc" id="ingZn" step="0.1"></div>
+      </div>
+      <div class="fr4">
+        <div class="fg"><label class="fl">Cu (ppm)</label><input type="number" class="fc" id="ingCu" step="0.1"></div>
+        <div class="fg"><label class="fl">Mn (ppm)</label><input type="number" class="fc" id="ingMn" step="0.1"></div>
+        <div class="fg"><label class="fl">Se (ppm)</label><input type="number" class="fc" id="ingSe" step="0.01"></div>
+        <div class="fg"><label class="fl">Co (ppm)</label><input type="number" class="fc" id="ingCo" step="0.01"></div>
+      </div>
+      <div class="fg"><label class="fl">I (ppm)</label><input type="number" class="fc" id="ingI" step="0.01" style="max-width:200px"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('ingModal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveIngredient()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRICE EDIT MODAL -->
+<div class="modal-overlay" id="priceModal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-hdr"><h2 class="modal-title">Atualizar Preço</h2><button class="modal-close" onclick="closeModal('priceModal')">&times;</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="priceEditId">
+      <div class="fg"><label class="fl">Ingrediente</label><input type="text" class="fc" id="priceIngName" readonly></div>
+      <div class="fg"><label class="fl">Preço por kg (R$)</label><input type="number" class="fc" id="priceKg" step="0.01" min="0"></div>
+      <div class="fg"><label class="fl">Fornecedor</label><input type="text" class="fc" id="priceFornecedor"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('priceModal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="savePrice()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-body">
+      <div class="confirm-body">
+        <div class="ci">⚠️</div>
+        <h3 id="confirmTitle">Confirmar</h3>
+        <p id="confirmMsg">Tem certeza?</p>
+        <div class="confirm-acts">
+          <button class="btn btn-outline" onclick="closeModal('confirmModal')">Cancelar</button>
+          <button class="btn btn-danger" id="confirmBtn">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+/* ============================================
+   APP STATE & CONSTANTS
+   ============================================ */
+const PFX = 'nutriracao_';
+const KEYS = {ingredients:'ingredients',formulas:'formulas',settings:'settings',formulaDiet:'formulaDiet'};
+
+/* ============================================
+   INGREDIENT DATABASE (JSON)
+   ============================================ */
+const DEFAULT_INGREDIENTS = [
+  // VOLUMOSOS
+  {nome:"Silagem de Milho",categoria:"Volumosos",MS:33,NDT:68,EM:2.45,EL:1.56,PB:7.5,PDR:5.2,PNDR:2.3,FDN:48,FDNe:42,FDA:27,Amido:22,EE:3.2,Ca:0.28,P:0.22,Mg:0.18,K:1.1,Na:0.01,Cl:0.2,S:0.14,Zn:25,Cu:6,Mn:30,Se:0.05,Co:0.01,I:0.1,PrecoKg:0.15},
+  {nome:"Silagem de Sorgo",categoria:"Volumosos",MS:30,NDT:60,EM:2.16,EL:1.34,PB:6.5,PDR:4.5,PNDR:2.0,FDN:55,FDNe:48,FDA:32,Amido:15,EE:2.5,Ca:0.35,P:0.18,Mg:0.2,K:1.2,Na:0.01,Cl:0.18,S:0.12,Zn:22,Cu:5,Mn:28,Se:0.04,Co:0.01,I:0.08,PrecoKg:0.12},
+  {nome:"Silagem de Capim Elefante",categoria:"Volumosos",MS:25,NDT:55,EM:1.98,EL:1.2,PB:6.0,PDR:4.2,PNDR:1.8,FDN:65,FDNe:58,FDA:38,Amido:2,EE:2.0,Ca:0.4,P:0.2,Mg:0.25,K:1.8,Na:0.02,Cl:0.3,S:0.15,Zn:20,Cu:4,Mn:35,Se:0.03,Co:0.01,I:0.06,PrecoKg:0.10},
+  {nome:"Feno de Tifton",categoria:"Volumosos",MS:88,NDT:56,EM:2.02,EL:1.22,PB:10,PDR:6.5,PNDR:3.5,FDN:72,FDNe:65,FDA:36,Amido:1,EE:1.8,Ca:0.45,P:0.25,Mg:0.22,K:1.6,Na:0.03,Cl:0.35,S:0.18,Zn:28,Cu:7,Mn:40,Se:0.04,Co:0.01,I:0.1,PrecoKg:0.55},
+  {nome:"Feno de Coast Cross",categoria:"Volumosos",MS:87,NDT:54,EM:1.95,EL:1.16,PB:9,PDR:5.8,PNDR:3.2,FDN:75,FDNe:68,FDA:38,Amido:1,EE:1.5,Ca:0.42,P:0.22,Mg:0.2,K:1.5,Na:0.02,Cl:0.3,S:0.16,Zn:26,Cu:6,Mn:38,Se:0.03,Co:0.01,I:0.08,PrecoKg:0.50},
+  {nome:"Cana-de-açúcar",categoria:"Volumosos",MS:28,NDT:58,EM:2.09,EL:1.28,PB:2.5,PDR:1.8,PNDR:0.7,FDN:52,FDNe:44,FDA:30,Amido:0,EE:0.8,Ca:0.2,P:0.08,Mg:0.1,K:0.6,Na:0.01,Cl:0.1,S:0.06,Zn:10,Cu:3,Mn:20,Se:0.01,Co:0.005,I:0.05,PrecoKg:0.08},
+  {nome:"Capim Brachiaria (pasto)",categoria:"Volumosos",MS:25,NDT:52,EM:1.87,EL:1.1,PB:8,PDR:5.5,PNDR:2.5,FDN:68,FDNe:60,FDA:35,Amido:0,EE:1.5,Ca:0.35,P:0.18,Mg:0.2,K:1.4,Na:0.02,Cl:0.25,S:0.14,Zn:20,Cu:5,Mn:30,Se:0.03,Co:0.01,I:0.07,PrecoKg:0.05},
+  {nome:"Capim Mombaça (pasto)",categoria:"Volumosos",MS:22,NDT:55,EM:1.98,EL:1.2,PB:10,PDR:7,PNDR:3,FDN:70,FDNe:62,FDA:36,Amido:0,EE:1.8,Ca:0.38,P:0.2,Mg:0.22,K:1.6,Na:0.02,Cl:0.28,S:0.15,Zn:22,Cu:5,Mn:32,Se:0.03,Co:0.01,I:0.07,PrecoKg:0.06},
+  // FONTES ENERGÉTICAS
+  {nome:"Milho Moído",categoria:"Fontes Energéticas",MS:88,NDT:87,EM:3.18,EL:2.18,PB:8.5,PDR:3.5,PNDR:5.0,FDN:12,FDNe:5,FDA:3,Amido:72,EE:3.9,Ca:0.03,P:0.28,Mg:0.12,K:0.35,Na:0.01,Cl:0.05,S:0.12,Zn:20,Cu:3,Mn:6,Se:0.05,Co:0.005,I:0.02,PrecoKg:0.85},
+  {nome:"Sorgo Moído",categoria:"Fontes Energéticas",MS:88,NDT:82,EM:2.96,EL:1.98,PB:9.5,PDR:4.0,PNDR:5.5,FDN:18,FDNe:8,FDA:6,Amido:65,EE:2.8,Ca:0.04,P:0.3,Mg:0.15,K:0.38,Na:0.02,Cl:0.06,S:0.14,Zn:18,Cu:4,Mn:10,Se:0.04,Co:0.005,I:0.03,PrecoKg:0.70},
+  {nome:"Polpa Cítrica",categoria:"Fontes Energéticas",MS:88,NDT:82,EM:2.96,EL:1.98,PB:6.5,PDR:4.0,PNDR:2.5,FDN:22,FDNe:14,FDA:18,Amido:0,EE:3.5,Ca:1.8,P:0.12,Mg:0.15,K:0.8,Na:0.08,Cl:0.05,S:0.08,Zn:8,Cu:5,Mn:4,Se:0.02,Co:0.003,I:0.02,PrecoKg:0.72},
+  {nome:"Casca de Soja",categoria:"Fontes Energéticas",MS:90,NDT:77,EM:2.78,EL:1.82,PB:12,PDR:4.8,PNDR:7.2,FDN:62,FDNe:42,FDA:44,Amido:2,EE:2.0,Ca:0.5,P:0.15,Mg:0.2,K:1.2,Na:0.02,Cl:0.03,S:0.08,Zn:15,Cu:8,Mn:25,Se:0.1,Co:0.005,I:0.04,PrecoKg:0.65},
+  // FONTES PROTEICAS
+  {nome:"Farelo de Soja 46%",categoria:"Fontes Proteicas",MS:89,NDT:82,EM:2.96,EL:2.0,PB:46,PDR:30,PNDR:16,FDN:14,FDNe:4,FDA:8,Amido:2,EE:1.5,Ca:0.35,P:0.65,Mg:0.3,K:2.1,Na:0.02,Cl:0.04,S:0.45,Zn:50,Cu:15,Mn:35,Se:0.1,Co:0.01,I:0.02,PrecoKg:1.95},
+  {nome:"Farelo de Algodão 38%",categoria:"Fontes Proteicas",MS:90,NDT:70,EM:2.52,EL:1.58,PB:38,PDR:22,PNDR:16,FDN:28,FDNe:10,FDA:18,Amido:2,EE:1.2,Ca:0.2,P:1.0,Mg:0.55,K:1.3,Na:0.04,Cl:0.04,S:0.4,Zn:65,Cu:12,Mn:18,Se:0.8,Co:0.02,I:0.03,PrecoKg:1.30},
+  {nome:"Farelo de Girassol",categoria:"Fontes Proteicas",MS:91,NDT:60,EM:2.16,EL:1.34,PB:28,PDR:18,PNDR:10,FDN:42,FDNe:18,FDA:30,Amido:1,EE:1.8,Ca:0.3,P:1.0,Mg:0.55,K:1.1,Na:0.03,Cl:0.12,S:0.35,Zn:55,Cu:25,Mn:30,Se:0.5,Co:0.01,I:0.05,PrecoKg:1.10},
+  {nome:"Torta de Algodão",categoria:"Fontes Proteicas",MS:92,NDT:65,EM:2.34,EL:1.45,PB:28,PDR:16,PNDR:12,FDN:40,FDNe:18,FDA:28,Amido:3,EE:6.5,Ca:0.22,P:0.85,Mg:0.5,K:1.2,Na:0.03,Cl:0.04,S:0.38,Zn:60,Cu:10,Mn:16,Se:0.6,Co:0.015,I:0.03,PrecoKg:1.00},
+  {nome:"Caroço de Algodão",categoria:"Fontes Proteicas",MS:91,NDT:85,EM:3.1,EL:2.14,PB:23,PDR:13,PNDR:10,FDN:45,FDNe:32,FDA:32,Amido:0,EE:19,Ca:0.15,P:0.6,Mg:0.4,K:1.1,Na:0.03,Cl:0.03,S:0.3,Zn:38,Cu:8,Mn:14,Se:0.5,Co:0.01,I:0.03,PrecoKg:1.20},
+  // COPRODUTOS INDUSTRIAIS
+  {nome:"DDG (Grão Seco de Destilaria)",categoria:"Coprodutos Industriais",MS:90,NDT:85,EM:3.07,EL:2.1,PB:27,PDR:14,PNDR:13,FDN:38,FDNe:15,FDA:16,Amido:5,EE:10,Ca:0.05,P:0.8,Mg:0.3,K:1.0,Na:0.25,Cl:0.2,S:0.5,Zn:70,Cu:8,Mn:16,Se:0.3,Co:0.01,I:0.05,PrecoKg:1.15},
+  {nome:"DDGS",categoria:"Coprodutos Industriais",MS:89,NDT:83,EM:2.99,EL:2.02,PB:30,PDR:16,PNDR:14,FDN:35,FDNe:12,FDA:14,Amido:4,EE:9,Ca:0.06,P:0.85,Mg:0.35,K:1.1,Na:0.3,Cl:0.22,S:0.55,Zn:75,Cu:9,Mn:18,Se:0.35,Co:0.01,I:0.05,PrecoKg:1.20},
+  {nome:"WDG (Grão Úmido de Destilaria)",categoria:"Coprodutos Industriais",MS:35,NDT:83,EM:2.99,EL:2.02,PB:30,PDR:16,PNDR:14,FDN:35,FDNe:12,FDA:14,Amido:4,EE:9,Ca:0.06,P:0.85,Mg:0.35,K:1.1,Na:0.3,Cl:0.22,S:0.55,Zn:75,Cu:9,Mn:18,Se:0.35,Co:0.01,I:0.05,PrecoKg:0.45},
+  {nome:"CGF (Glúten Feed Milho)",categoria:"Coprodutos Industriais",MS:88,NDT:80,EM:2.88,EL:1.92,PB:21,PDR:13,PNDR:8,FDN:36,FDNe:14,FDA:10,Amido:18,EE:3,Ca:0.1,P:0.9,Mg:0.4,K:0.6,Na:0.15,Cl:0.1,S:0.3,Zn:50,Cu:7,Mn:10,Se:0.2,Co:0.008,I:0.03,PrecoKg:0.95},
+  {nome:"Resíduo de Cervejaria Úmido",categoria:"Coprodutos Industriais",MS:22,NDT:68,EM:2.45,EL:1.56,PB:25,PDR:14,PNDR:11,FDN:50,FDNe:30,FDA:22,Amido:2,EE:7,Ca:0.3,P:0.5,Mg:0.2,K:0.1,Na:0.1,Cl:0.2,S:0.35,Zn:40,Cu:12,Mn:15,Se:0.15,Co:0.008,I:0.03,PrecoKg:0.15},
+  // NNP
+  {nome:"Ureia Pecuária (45%N)",categoria:"NNP",MS:99,NDT:0,EM:0,EL:0,PB:281,PDR:281,PNDR:0,FDN:0,FDNe:0,FDA:0,Amido:0,EE:0,Ca:0,P:0,Mg:0,K:0,Na:0,Cl:0,S:0,Zn:0,Cu:0,Mn:0,Se:0,Co:0,I:0,PrecoKg:2.50},
+  {nome:"Ureia Protegida",categoria:"NNP",MS:99,NDT:0,EM:0,EL:0,PB:256,PDR:230,PNDR:26,FDN:0,FDNe:0,FDA:0,Amido:0,EE:0,Ca:0,P:0,Mg:0,K:0,Na:0,Cl:0,S:0,Zn:0,Cu:0,Mn:0,Se:0,Co:0,I:0,PrecoKg:5.00},
+  {nome:"Sulfato de Amônio",categoria:"NNP",MS:99,NDT:0,EM:0,EL:0,PB:132,PDR:132,PNDR:0,FDN:0,FDNe:0,FDA:0,Amido:0,EE:0,Ca:0,P:0,Mg:0,K:0,Na:0,Cl:0,S:24,Zn:0,Cu:0,Mn:0,Se:0,Co:0,I:0,PrecoKg:1.80},
+  // GORDURAS
+  {nome:"Óleo de Soja",categoria:"Gorduras",MS:99,NDT:184,EM:6.62,EL:5.26,PB:0,PDR:0,PNDR:0,FDN:0,FDNe:0,FDA:0,Amido:0,EE:99,Ca:0,P:0,Mg:0,K:0,Na:0,Cl:0,S:0,Zn:0,Cu:0,Mn:0,Se:0,Co:0,I:0,PrecoKg:5.50},
+  {nome:"Sebo Bovino",categoria:"Gorduras",MS:99,NDT:177,EM:6.37,EL:5.0,PB:0,PDR:0,PNDR:0,FDN:0,FDNe:0,FDA:0,Amido:0,EE:95,Ca:0,P:0,Mg:0,K:0,Na:0,Cl:0,S:0,Zn:0,Cu:0,Mn:0,Se:0,Co:0,I:0,PrecoKg:3.80},
+  {nome:"Gordura Protegida",categoria:"Gorduras",MS:97,NDT:170,EM:6.12,EL:4.8,PB:0,PDR:0,PNDR:0,FDN:0,FDNe:0,FDA:0,Amido:0,EE:85,Ca:6,P:0,Mg:0,K:0,Na:0,Cl:0,S:0,Zn:0,Cu:0,Mn:0,Se:0,Co:0,I:0,PrecoKg:8.50},
+  // MINERAIS
+  {nome:"Calcário Calcítico",categoria:"Minerais",MS:99,NDT:0,EM:0,EL:0,PB:0,PDR:0,PNDR:0,FDN:0,FDNe:0,FDA:0,Amido:0,EE:0,Ca:38,P:0,Mg:1,K:0,Na:0,Cl:0,S:0,Zn:0,Cu:0,Mn:0,Se:0,Co:0,I:0,PrecoKg:0.20},
+  {nome:"Fosfato Bicálcico",categoria:"Minerais",MS:99,NDT:0,EM:0,EL:0,PB:0,PDR:0,PNDR:0,FDN:0,FDNe:0,FDA:0,Amido:0,EE:0,Ca:24,P:18.5,Mg:0,K:0,Na:0,Cl:0,S:0,Zn:0,Cu:0,Mn:0,Se:0,Co:0,I:0,PrecoKg:2.80},
+  {nome:"Sal Comum (NaCl)",categoria:"Minerais",MS:99,NDT:0,EM:0,EL:0,PB:0,PDR:0,PNDR:0,FDN:0,FDNe:0,FDA:0,Amido:0,EE:0,Ca:0,P:0,Mg:0,K:0,Na:39.3,Cl:60.7,S:0,Zn:0,Cu:0,Mn:0,Se:0,Co:0,I:0,PrecoKg:0.50},
+  {nome:"Sulfato de Zinco",categoria:"Minerais",MS:99,NDT:0,EM:0,EL:0,PB:0,PDR:0,PNDR:0,FDN:0,FDNe:0,FDA:0,Amido:0,EE:0,Ca:0,P:0,Mg:0,K:0,Na:0,Cl:0,S:11,Zn:22000,Cu:0,Mn:0,Se:0,Co:0,I:0,PrecoKg:4.50},
+  {nome:"Sulfato de Cobre",categoria:"Minerais",MS:99,NDT:0,EM:0,EL:0,PB:0,PDR:0,PNDR:0,FDN:0,FDNe:0,FDA:0,Amido:0,EE:0,Ca:0,P:0,Mg:0,K:0,Na:0,Cl:0,S:13,Zn:0,Cu:25000,Mn:0,Se:0,Co:0,I:0,PrecoKg:12.00},
+  {nome:"Óxido de Magnésio",categoria:"Minerais",MS:99,NDT:0,EM:0,EL:0,PB:0,PDR:0,PNDR:0,FDN:0,FDNe:0,FDA:0,Amido:0,EE:0,Ca:0,P:0,Mg:55,K:0,Na:0,Cl:0,S:0,Zn:0,Cu:0,Mn:0,Se:0,Co:0,I:0,PrecoKg:3.50},
+  // VITAMINAS
+  {nome:"Vitamina A (1.000.000 UI/g)",categoria:"Vitaminas",MS:99,NDT:0,EM:0,EL:0,PB:0,PDR:0,PNDR:0,FDN:0,FDNe:0,FDA:0,Amido:0,EE:0,Ca:0,P:0,Mg:0,K:0,Na:0,Cl:0,S:0,Zn:0,Cu:0,Mn:0,Se:0,Co:0,I:0,PrecoKg:65.00},
+  {nome:"Vitamina D3 (500.000 UI/g)",categoria:"Vitaminas",MS:99,NDT:0,EM:0,EL:0,PB:0,PDR:0,PNDR:0,FDN:0,FDNe:0,FDA:0,Amido:0,EE:0,Ca:0,P:0,Mg:0,K:0,Na:0,Cl:0,S:0,Zn:0,Cu:0,Mn:0,Se:0,Co:0,I:0,PrecoKg:80.00},
+  {nome:"Vitamina E (500 UI/g)",categoria:"Vitaminas",MS:99,NDT:0,EM:0,EL:0,PB:0,PDR:0,PNDR:0,FDN:0,FDNe:0,FDA:0,Amido:0,EE:0,Ca:0,P:0,Mg:0,K:0,Na:0,Cl:0,S:0,Zn:0,Cu:0,Mn:0,Se:0,Co:0,I:0,PrecoKg:45.00},
+  // ADITIVOS
+  {nome:"Monensina Sódica",categoria:"Aditivos",MS:99,NDT:0,EM:0,EL:0,PB:0,PDR:0,PNDR:0,FDN:0,FDNe:0,FDA:0,Amido:0,EE:0,Ca:0,P:0,Mg:0,K:0,Na:0,Cl:0,S:0,Zn:0,Cu:0,Mn:0,Se:0,Co:0,I:0,PrecoKg:90.00},
+  {nome:"Virginiamicina",categoria:"Aditivos",MS:99,NDT:0,EM:0,EL:0,PB:0,PDR:0,PNDR:0,FDN:0,FDNe:0,FDA:0,Amido:0,EE:0,Ca:0,P:0,Mg:0,K:0,Na:0,Cl:0,S:0,Zn:0,Cu:0,Mn:0,Se:0,Co:0,I:0,PrecoKg:120.00},
+  {nome:"Levedura Viva (Saccharomyces)",categoria:"Aditivos",MS:95,NDT:0,EM:0,EL:0,PB:35,PDR:20,PNDR:15,FDN:0,FDNe:0,FDA:0,Amido:0,EE:1,Ca:0.1,P:1.5,Mg:0.2,K:1.8,Na:0.05,Cl:0.02,S:0.4,Zn:40,Cu:8,Mn:6,Se:0.5,Co:0.01,I:0.02,PrecoKg:35.00},
+  {nome:"Bicarbonato de Sódio",categoria:"Aditivos",MS:99,NDT:0,EM:0,EL:0,PB:0,PDR:0,PNDR:0,FDN:0,FDNe:0,FDA:0,Amido:0,EE:0,Ca:0,P:0,Mg:0,K:0,Na:27,Cl:0,S:0,Zn:0,Cu:0,Mn:0,Se:0,Co:0,I:0,PrecoKg:2.20},
+  // NÚCLEOS
+  {nome:"Núcleo Mineral para Confinamento",categoria:"Núcleos",MS:98,NDT:0,EM:0,EL:0,PB:0,PDR:0,PNDR:0,FDN:0,FDNe:0,FDA:0,Amido:0,EE:0,Ca:13,P:8,Mg:1,K:0,Na:6,Cl:9,S:1.5,Zn:4000,Cu:1200,Mn:1000,Se:15,Co:40,I:60,PrecoKg:4.50},
+  {nome:"Núcleo Proteico-Energético",categoria:"Núcleos",MS:90,NDT:72,EM:2.6,EL:1.66,PB:40,PDR:28,PNDR:12,FDN:8,FDNe:2,FDA:5,Amido:8,EE:2,Ca:2,P:1.5,Mg:0.5,K:1,Na:3,Cl:4,S:0.8,Zn:2000,Cu:600,Mn:500,Se:8,Co:20,I:30,PrecoKg:3.20},
+];
+
+/* ============================================
+   NUTRIENT REQUIREMENTS CALCULATOR
+   ============================================ */
+const NUTRIENT_NAMES = {
+  MS:'Matéria Seca',NDT:'NDT',EM:'En. Metabolizável',EL:'En. Líquida',
+  PB:'Proteína Bruta',PDR:'PDR',PNDR:'PNDR',FDN:'FDN',FDNe:'FDNe',FDA:'FDA',
+  Amido:'Amido',EE:'Extrato Etéreo',Ca:'Cálcio',P:'Fósforo',Mg:'Magnésio',
+  K:'Potássio',Na:'Sódio',Cl:'Cloro',S:'Enxofre'
+};
+const NUTRIENT_UNITS = {
+  MS:'kg',NDT:'%',EM:'Mcal/kg',EL:'Mcal/kg',PB:'%',PDR:'%PB',PNDR:'%PB',
+  FDN:'%',FDNe:'%',FDA:'%',Amido:'%',EE:'%',Ca:'%',P:'%',Mg:'%',K:'%',Na:'%',Cl:'%',S:'%'
+};
+
+function calcExigencias() {
+  const peso = parseFloat(document.getElementById('animalPeso')?.value) || 450;
+  const gmd = parseFloat(document.getElementById('metaGMD')?.value) || 1.2;
+  const cmsPV = parseFloat(document.getElementById('metaCMSpv')?.value) || 2.5;
+  const dias = parseFloat(document.getElementById('metaDias')?.value) || 90;
+  const pesoIni = parseFloat(document.getElementById('metaPesoIni')?.value) || 350;
+  const pesoFin = parseFloat(document.getElementById('metaPesoFin')?.value) || 550;
+  const estado = document.getElementById('animalEstado')?.value || 'engorda';
+
+  // Consumo de matéria seca
+  const cms = peso * cmsPV / 100;
+  document.getElementById('metaCMS') && (document.getElementById('metaCMS').value = cms.toFixed(2));
+
+  // Ganho total
+  const ganhoTotal = gmd * dias;
+  document.getElementById('metaGanhoTotal') && (document.getElementById('metaGanhoTotal').value = ganhoTotal.toFixed(1));
+
+  // Conversão alimentar
+  const ca = gmd > 0 ? cms / gmd : 0;
+  document.getElementById('metaCA') && (document.getElementById('metaCA').value = ca.toFixed(2));
+
+  // Exigências baseadas no NRC (simplificado para bovinos de corte)
+  const multipliers = {
+    crescimento:{ndt:68,pb:14,fdn:35,ca:0.55,p:0.28},
+    recria:{ndt:65,pb:12,fdn:38,ca:0.45,p:0.25},
+    engorda:{ndt:72,pb:12.5,fdn:28,ca:0.5,p:0.3},
+    terminacao:{ndt:75,pb:13,fdn:25,ca:0.55,p:0.32},
+    gestacao:{ndt:60,pb:11,fdn:42,ca:0.4,p:0.22},
+    lactacao:{ndt:68,pb:14,fdn:35,ca:0.6,p:0.35},
+    reproducao:{ndt:62,pb:12,fdn:40,ca:0.45,p:0.25},
+    manutencao:{ndt:55,pb:7,fdn:50,ca:0.3,p:0.18}
+  };
+
+  const m = multipliers[estado] || multipliers.engorda;
+  const gmdFactor = 1 + (gmd - 1) * 0.15;
+
+  window.currentExig = {
+    NDT: m.ndt * gmdFactor,
+    EM: (m.ndt * gmdFactor * 0.0361) - 0.05,
+    EL: ((m.ndt * gmdFactor * 0.0361) - 0.05) * 0.65,
+    PB: m.pb * gmdFactor,
+    PDR: m.pb * gmdFactor * 0.65,
+    PNDR: m.pb * gmdFactor * 0.35,
+    FDN: m.fdn,
+    FDNe: m.fdn * 0.75,
+    FDA: m.fdn * 0.55,
+    Amido: estado === 'terminacao' || estado === 'engorda' ? 35 : 20,
+    EE: 5,
+    Ca: m.ca,
+    P: m.p,
+    Mg: 0.15,
+    K: 0.6,
+    Na: 0.08,
+    Cl: 0.1,
+    S: 0.15
+  };
+
+  renderExigCalc();
+  recalcFormula();
+}
+
+function renderExigCalc() {
+  if (!window.currentExig) return;
+  const container = document.getElementById('exigCalcContainer');
+  if (!container) return;
+
+  let html = '';
+  for (const [key, val] of Object.entries(window.currentExig)) {
+    const name = NUTRIENT_NAMES[key] || key;
+    const unit = NUTRIENT_UNITS[key] || '%';
+    html += `<div class="nut-row">
+      <span class="nut-name">${name}</span>
+      <div class="nut-vals"><span class="nut-val">${val.toFixed(2)} ${unit}</span></div>
+    </div>`;
+  }
+  container.innerHTML = html;
+}
+
+/* ============================================
+   FORMULA / DIET STATE
+   ============================================ */
+let formulaDiet = []; // [{ingredientId, pctInclusion}]
+let chartInstances = {};
+
+function addToFormula(ingId) {
+  const ings = getData(KEYS.ingredients);
+  const ing = ings.find(i => i.id === ingId);
+  if (!ing) return;
+  if (formulaDiet.find(f => f.ingredientId === ingId)) {
+    toast('warning','Já adicionado','Este ingrediente já está na dieta.');
+    return;
+  }
+  formulaDiet.push({ingredientId: ingId, pctInclusion: 5});
+  renderFormula();
+  recalcFormula();
+  toast('success','Adicionado',`${ing.nome} adicionado à dieta.`);
+}
+
+function removeFromFormula(ingId) {
+  formulaDiet = formulaDiet.filter(f => f.ingredientId !== ingId);
+  renderFormula();
+  recalcFormula();
+}
+
+function updateInclusion(ingId, val) {
+  const item = formulaDiet.find(f => f.ingredientId === ingId);
+  if (item) {
+    item.pctInclusion = parseFloat(val) || 0;
+    recalcFormula();
+  }
+}
+
+function autoBalance() {
+  if (formulaDiet.length === 0) { toast('warning','Vazio','Adicione ingredientes primeiro.'); return; }
+  const total = formulaDiet.reduce((s, f) => s + f.pctInclusion, 0);
+  if (total === 0) {
+    const each = 100 / formulaDiet.length;
+    formulaDiet.forEach(f => f.pctInclusion = parseFloat(each.toFixed(2)));
+  } else {
+    const factor = 100 / total;
+    formulaDiet.forEach(f => f.pctInclusion = parseFloat((f.pctInclusion * factor).toFixed(2)));
+  }
+  renderFormula();
+  recalcFormula();
+  toast('success','Balanceado','Dieta ajustada para 100%.');
+}
+
+function renderFormula() {
+  const ings = getData(KEYS.ingredients);
+  const cms = parseFloat(document.getElementById('metaCMS')?.value) || 11.25;
+  const tbody = document.getElementById('formulaBody');
+  if (!tbody) return;
+
+  let total = 0;
+  tbody.innerHTML = formulaDiet.map(f => {
+    const ing = ings.find(i => i.id === f.ingredientId);
+    if (!ing) return '';
+    total += f.pctInclusion;
+    const kgDia = (f.pctInclusion / 100) * cms;
+    const custoDia = kgDia * (ing.PrecoKg || 0);
+    return `<tr>
+      <td style="font-size:12px">${sanitize(ing.nome)}</td>
+      <td><input type="number" value="${f.pctInclusion}" step="0.5" min="0" max="100" onchange="updateInclusion('${f.ingredientId}',this.value)"></td>
+      <td>${kgDia.toFixed(2)}</td>
+      <td>R$ ${custoDia.toFixed(2)}</td>
+      <td><button class="btn btn-icon btn-ghost btn-sm" onclick="removeFromFormula('${f.ingredientId}')" title="Remover">🗑️</button></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('formulaTotal').textContent = total.toFixed(2);
+  const badge = document.getElementById('formulaStatusBadge');
+  if (Math.abs(total - 100) < 0.5) {
+    badge.className = 'badge badge-green';
+    badge.textContent = '✅ Balanceada (100%)';
+  } else if (total > 100) {
+    badge.className = 'badge badge-red';
+    badge.textContent = `⚠️ Excesso (${total.toFixed(1)}%)`;
+  } else {
+    badge.className = 'badge badge-yellow';
+    badge.textContent = `⚠️ Incompleta (${total.toFixed(1)}%)`;
+  }
+}
+
+function recalcFormula() {
+  if (!window.currentExig) calcExigencias();
+  const ings = getData(KEYS.ingredients);
+
+  // Calculate weighted nutrients
+  const nutrients = {};
+  const nutKeys = ['NDT','EM','EL','PB','PDR','PNDR','FDN','FDNe','FDA','Amido','EE','Ca','P','Mg','K','Na','Cl','S'];
+  nutKeys.forEach(k => nutrients[k] = 0);
+
+  formulaDiet.forEach(f => {
+    const ing = ings.find(i => i.id === f.ingredientId);
+    if (!ing) return;
+    const frac = f.pctInclusion / 100;
+    nutKeys.forEach(k => {
+      nutrients[k] += (ing[k] || 0) * frac;
+    });
+  });
+
+  window.currentDiet = nutrients;
+  renderResults();
+}
+
+function renderResults() {
+  const container = document.getElementById('resultNutContainer');
+  if (!container || !window.currentExig || !window.currentDiet) return;
+
+  const nutKeys = ['NDT','EM','EL','PB','FDN','FDNe','FDA','Amido','EE','Ca','P','Mg','K','Na','S'];
+  let html = '';
+
+  nutKeys.forEach(key => {
+    const req = window.currentExig[key] || 0;
+    const prov = window.currentDiet[key] || 0;
+    const pct = req > 0 ? (prov / req) * 100 : 0;
+    const name = NUTRIENT_NAMES[key] || key;
+    const unit = NUTRIENT_UNITS[key] || '%';
+
+    let status = 'ok', barColor = 'green';
+    // FDN is inverted - minimum requirement
+    if (key === 'FDN' || key === 'FDNe') {
+      if (prov < req * 0.85) { status = 'bad'; barColor = 'red'; }
+      else if (prov < req * 0.95) { status = 'warn'; barColor = 'yellow'; }
+    } else {
+      if (pct < 85) { status = 'bad'; barColor = 'red'; }
+      else if (pct < 95) { status = 'warn'; barColor = 'yellow'; }
+      else if (pct > 120) { status = 'warn'; barColor = 'yellow'; }
+    }
+
+    const barW = Math.min(pct, 150);
+
+    html += `<div class="nut-row">
+      <span class="nut-name">${name}</span>
+      <div class="nut-bar"><div class="progress"><div class="progress-fill ${barColor}" style="width:${barW}%"></div></div></div>
+      <div class="nut-vals">
+        <span class="nut-val">${prov.toFixed(2)} ${unit}</span>
+        <span class="nut-req">/ ${req.toFixed(2)}</span>
+      </div>
+      <span class="nut-pct" style="color:${status==='ok'?'var(--success)':status==='warn'?'var(--warning)':'var(--danger)'}">${pct.toFixed(0)}%</span>
+      <div class="nut-status ${status}"></div>
+    </div>`;
+  });
+
+  container.innerHTML = html;
+  renderCostResult();
+  renderFormulaPieChart();
+}
+
+function renderCostResult() {
+  const container = document.getElementById('resultCostContainer');
+  if (!container) return;
+  const ings = getData(KEYS.ingredients);
+  const cms = parseFloat(document.getElementById('metaCMS')?.value) || 11.25;
+  const gmd = parseFloat(document.getElementById('metaGMD')?.value) || 1.2;
+  const dias = parseFloat(document.getElementById('metaDias')?.value) || 90;
+
+  let custoTotal = 0;
+  formulaDiet.forEach(f => {
+    const ing = ings.find(i => i.id === f.ingredientId);
+    if (!ing) return;
+    custoTotal += (f.pctInclusion / 100) * cms * (ing.PrecoKg || 0);
+  });
+
+  const custoKg = cms > 0 ? custoTotal / cms : 0;
+  const custoTon = custoKg * 1000;
+  const custoArr = gmd > 0 ? (custoTotal * 30) / gmd : 0; // custo por @ (30 dias)
+  const custoCiclo = custoTotal * dias;
+  const custoKgGanho = gmd > 0 ? custoTotal / gmd : 0;
+
+  container.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="padding:10px;background:var(--bg);border-radius:8px;text-align:center">
+        <div style="font-size:11px;color:var(--text-muted)">Custo/kg ração</div>
+        <div style="font-size:18px;font-weight:700;color:var(--primary)">R$ ${custoKg.toFixed(2)}</div>
+      </div>
+      <div style="padding:10px;background:var(--bg);border-radius:8px;text-align:center">
+        <div style="font-size:11px;color:var(--text-muted)">Custo/tonelada</div>
+        <div style="font-size:18px;font-weight:700;color:var(--primary)">R$ ${custoTon.toFixed(0)}</div>
+      </div>
+      <div style="padding:10px;background:var(--bg);border-radius:8px;text-align:center">
+        <div style="font-size:11px;color:var(--text-muted)">Custo/animal/dia</div>
+        <div style="font-size:18px;font-weight:700;color:var(--secondary-dark)">R$ ${custoTotal.toFixed(2)}</div>
+      </div>
+      <div style="padding:10px;background:var(--bg);border-radius:8px;text-align:center">
+        <div style="font-size:11px;color:var(--text-muted)">Custo/ciclo</div>
+        <div style="font-size:18px;font-weight:700;color:var(--secondary-dark)">R$ ${custoCiclo.toFixed(0)}</div>
+      </div>
+      <div style="padding:10px;background:var(--bg);border-radius:8px;text-align:center">
+        <div style="font-size:11px;color:var(--text-muted)">Custo/kg ganho</div>
+        <div style="font-size:18px;font-weight:700;color:var(--accent)">R$ ${custoKgGanho.toFixed(2)}</div>
+      </div>
+      <div style="padding:10px;background:var(--bg);border-radius:8px;text-align:center">
+        <div style="font-size:11px;color:var(--text-muted)">Custo/@ produzida</div>
+        <div style="font-size:18px;font-weight:700;color:var(--accent)">R$ ${custoArr.toFixed(2)}</div>
+      </div>
+    </div>
+  `;
+}
+
+/* ============================================
+   CHARTS
+   ============================================ */
+function destroyChart(id) {
+  if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
+}
+
+function renderFormulaPieChart() {
+  const ings = getData(KEYS.ingredients);
+  const canvas = document.getElementById('chartFormulaPie');
+  if (!canvas) return;
+
+  destroyChart('formulaPie');
+  const labels = [];
+  const data = [];
+  const bgColors = ['#1a5d1a','#2a9d8f','#f4a261','#e76f51','#264653','#e9c46a','#8b5cf6','#ec4899','#3b82f6','#14b8a6'];
+
+  formulaDiet.forEach((f,i) => {
+    const ing = ings.find(x => x.id === f.ingredientId);
+    if (ing && f.pctInclusion > 0) {
+      labels.push(ing.nome);
+      data.push(f.pctInclusion);
+    }
+  });
+
+  if (data.length === 0) return;
+
+  chartInstances['formulaPie'] = new Chart(canvas, {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data, backgroundColor: bgColors.slice(0, data.length), borderWidth: 0 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, padding: 8 } } } }
+  });
+}
+
+function renderDashboardCharts() {
+  const ings = getData(KEYS.ingredients);
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const textColor = isDark ? '#a0a8b8' : '#5a6172';
+  const gridColor = isDark ? '#2a2d37' : '#e2e6ea';
+
+  // Diet composition chart
+  destroyChart('dietComp');
+  const canvas1 = document.getElementById('chartDietComp');
+  if (canvas1 && formulaDiet.length > 0) {
+    const labels = [];
+    const data = [];
+    const bgColors = ['#1a5d1a','#2a9d8f','#f4a261','#e76f51','#264653','#e9c46a','#8b5cf6','#ec4899'];
+    formulaDiet.forEach(f => {
+      const ing = ings.find(x => x.id === f.ingredientId);
+      if (ing && f.pctInclusion > 0) { labels.push(ing.nome); data.push(f.pctInclusion); }
+    });
+    if (data.length > 0) {
+      chartInstances['dietComp'] = new Chart(canvas1, {
+        type: 'doughnut',
+        data: { labels, datasets: [{ data, backgroundColor: bgColors.slice(0, data.length), borderWidth: 0 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: textColor, font: { size: 10 } } } } }
+      });
+    }
+  }
+
+  // Nutritional meeting chart
+  destroyChart('nutMet');
+  const canvas2 = document.getElementById('chartNutMet');
+  if (canvas2 && window.currentExig && window.currentDiet) {
+    const keys = ['NDT','PB','FDN','Ca','P','EE'];
+    const labels = keys.map(k => NUTRIENT_NAMES[k] || k);
+    const data = keys.map(k => {
+      const req = window.currentExig[k] || 0;
+      const prov = window.currentDiet[k] || 0;
+      return req > 0 ? Math.min((prov / req) * 100, 150) : 0;
+    });
+    chartInstances['nutMet'] = new Chart(canvas2, {
+      type: 'bar',
+      data: { labels, datasets: [{ label: '% Atendimento', data, backgroundColor: data.map(v => v >= 95 ? '#27ae60' : v >= 85 ? '#f39c12' : '#e74c3c'), borderRadius: 4 }] },
+      options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor } }, x: { grid: { display: false }, ticks: { color: textColor, font: { size: 10 } } } }, plugins: { legend: { display: false }, annotation: {} } }
+    });
+  }
+
+  // Cost by category chart
+  destroyChart('costCat');
+  const canvas3 = document.getElementById('chartCostCat');
+  if (canvas3) {
+    const cms = parseFloat(document.getElementById('metaCMS')?.value) || 11.25;
+    const catCosts = {};
+    formulaDiet.forEach(f => {
+      const ing = ings.find(x => x.id === f.ingredientId);
+      if (!ing) return;
+      const cost = (f.pctInclusion / 100) * cms * (ing.PrecoKg || 0);
+      catCosts[ing.categoria] = (catCosts[ing.categoria] || 0) + cost;
+    });
+    const labels = Object.keys(catCosts);
+    const data = Object.values(catCosts);
+    const colors = ['#1a5d1a','#2a9d8f','#f4a261','#e76f51','#264653','#e9c46a','#8b5cf6'];
+    if (labels.length > 0) {
+      chartInstances['costCat'] = new Chart(canvas3, {
+        type: 'pie',
+        data: { labels, datasets: [{ data, backgroundColor: colors.slice(0, data.length), borderWidth: 0 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: textColor, font: { size: 10 } } } } }
+      });
+    }
+  }
+}
+
+/* ============================================
+   DATA MANAGEMENT
+   ============================================ */
+function generateId() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 6); }
+function sanitize(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+function getData(key) {
+  try { const d = localStorage.getItem(PFX + key); return d ? JSON.parse(d) : []; }
+  catch(e) { return []; }
+}
+function saveData(key, data) {
+  try { localStorage.setItem(PFX + key, JSON.stringify(data)); }
+  catch(e) { toast('error','Erro','Não foi possível salvar.'); }
+}
+
+function initIngredients() {
+  let ings = getData(KEYS.ingredients);
+  if (ings.length === 0) {
+    ings = DEFAULT_INGREDIENTS.map(i => ({...i, id: generateId(), UltimaAtualizacao: new Date().toISOString().split('T')[0]}));
+    saveData(KEYS.ingredients, ings);
+  }
+}
+
+/* ============================================
+   TOAST
+   ============================================ */
+function toast(type, title, msg) {
+  const icons = {success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'};
+  const box = document.getElementById('toastBox');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span class="toast-icon">${icons[type]||'ℹ️'}</span><div class="toast-cnt"><div class="toast-title">${sanitize(title)}</div><div class="toast-msg">${sanitize(msg)}</div></div><button class="toast-x" onclick="this.parentElement.remove()">&times;</button><div class="toast-bar"></div>`;
+  box.appendChild(el);
+  setTimeout(() => { if (el.parentElement) el.remove(); }, 4000);
+}
+
+/* ============================================
+   MODAL
+   ============================================ */
+function openModal(id) { document.getElementById(id).classList.add('active'); document.body.style.overflow = 'hidden'; }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); document.body.style.overflow = ''; }
+document.addEventListener('click', e => { if (e.target.classList.contains('modal-overlay')) { e.target.classList.remove('active'); document.body.style.overflow = ''; } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.active').forEach(m => { m.classList.remove('active'); document.body.style.overflow = ''; }); });
+
+function showConfirm(title, msg, cb) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMsg').textContent = msg;
+  document.getElementById('confirmBtn').onclick = () => { closeModal('confirmModal'); cb(); };
+  openModal('confirmModal');
+}
+
+/* ============================================
+   NAVIGATION
+   ============================================ */
+let currentPage = 'dashboard';
+function nav(page) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.page === page));
+  document.querySelectorAll('.page-section').forEach(s => s.classList.toggle('active', s.id === 'pg-' + page));
+  currentPage = page;
+  closeMobMenu();
+  renderPageData(page);
+}
+function renderPageData(page) {
+  switch(page) {
+    case 'dashboard': renderDashboard(); break;
+    case 'nova-formulacao': calcExigencias(); renderIngredientSelector(); renderFormula(); break;
+    case 'ingredientes': renderIngredients(); break;
+    case 'banco-nutricional': renderBancoNutricional(); break;
+    case 'exigencias': renderExigRef(); break;
+    case 'custos': renderCosts(); break;
+    case 'relatorios': renderReports(); break;
+  }
+}
+document.querySelectorAll('.nav-item').forEach(n => {
+  n.addEventListener('click', () => nav(n.dataset.page));
+  n.addEventListener('keydown', e => { if (e.key === 'Enter') nav(n.dataset.page); });
+});
+
+/* ============================================
+   SIDEBAR / THEME
+   ============================================ */
+const sidebar = document.getElementById('sidebar');
+document.getElementById('sidebarToggle').addEventListener('click', () => {
+  sidebar.classList.toggle('collapsed');
+  document.getElementById('togIcon').textContent = sidebar.classList.contains('collapsed') ? '▶' : '◀';
+});
+document.getElementById('mobMenuBtn').addEventListener('click', () => { sidebar.classList.add('mob-open'); document.getElementById('mobOverlay').classList.add('active'); });
+function closeMobMenu() { sidebar.classList.remove('mob-open'); document.getElementById('mobOverlay').classList.remove('active'); }
+document.getElementById('mobOverlay').addEventListener('click', closeMobMenu);
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('themeIco').textContent = isDark ? '🌙' : '☀️';
+  document.getElementById('darkToggle').checked = !isDark;
+  localStorage.setItem(PFX + 'theme', isDark ? 'light' : 'dark');
+  // Recreate charts with new colors
+  if (currentPage === 'dashboard') renderDashboardCharts();
+}
+document.getElementById('themeBtn').addEventListener('click', toggleTheme);
+
+function loadTheme() {
+  const t = localStorage.getItem(PFX + 'theme') || 'light';
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('themeIco').textContent = t === 'dark' ? '☀️' : '🌙';
+  document.getElementById('darkToggle').checked = t === 'dark';
+}
+
+/* ============================================
+   TABS
+   ============================================ */
+function switchTab(tab, btn) {
+  const parent = btn.closest('.page-section') || document;
+  parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  parent.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + tab)?.classList.add('active');
+  if (tab === 'resultado') recalcFormula();
+  if (tab === 'ingredsel') renderIngredientSelector();
+}
+
+/* ============================================
+   DASHBOARD
+   ============================================ */
+function renderDashboard() {
+  const ings = getData(KEYS.ingredients);
+  const formulas = getData(KEYS.formulas);
+  const cms = parseFloat(document.getElementById('metaCMS')?.value) || 11.25;
+
+  let custoTotal = 0;
+  formulaDiet.forEach(f => {
+    const ing = ings.find(x => x.id === f.ingredientId);
+    if (ing) custoTotal += (f.pctInclusion / 100) * cms * (ing.PrecoKg || 0);
+  });
+
+  document.getElementById('dashStats').innerHTML = `
+    <div class="stat green"><div class="stat-info"><h3>Ingredientes</h3><div class="stat-val">${ings.length}</div><div class="stat-sub">No banco de dados</div></div><div class="stat-icon green">🌾</div></div>
+    <div class="stat blue"><div class="stat-info"><h3>Na Dieta Atual</h3><div class="stat-val">${formulaDiet.length}</div><div class="stat-sub">Ingredientes selecionados</div></div><div class="stat-icon blue">🧪</div></div>
+    <div class="stat orange"><div class="stat-info"><h3>Custo/Dia</h3><div class="stat-val">R$ ${custoTotal.toFixed(2)}</div><div class="stat-sub">Por animal</div></div><div class="stat-icon orange">💰</div></div>
+    <div class="stat purple"><div class="stat-info"><h3>Formulações Salvas</h3><div class="stat-val">${formulas.length}</div><div class="stat-sub">No histórico</div></div><div class="stat-icon purple">📋</div></div>
+  `;
+
+  renderDashboardCharts();
+  renderRecentFormulas();
+}
+
+function renderRecentFormulas() {
+  const formulas = getData(KEYS.formulas);
+  const container = document.getElementById('recentFormulas');
+  if (!container) return;
+  if (formulas.length === 0) {
+    container.innerHTML = '<div class="empty"><p>Nenhuma formulação salva ainda</p></div>';
+    return;
+  }
+  container.innerHTML = formulas.slice(-5).reverse().map(f => `
+    <div style="padding:8px 0;border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;align-items:center">
+      <div><strong style="font-size:13px">${sanitize(f.name)}</strong><div style="font-size:11px;color:var(--text-muted)">${f.date} - ${f.ingredientCount} ingredientes</div></div>
+      <span class="badge badge-green">R$ ${f.costPerDay?.toFixed(2) || '0.00'}/dia</span>
+    </div>
+  `).join('');
+}
+
+/* ============================================
+   INGREDIENTS CRUD
+   ============================================ */
+function saveIngredient() {
+  const editId = document.getElementById('ingEditId').value;
+  const name = document.getElementById('ingName').value.trim();
+  if (!name) { toast('error','Erro','Nome é obrigatório.'); return; }
+
+  const ings = getData(KEYS.ingredients);
+  const fields = ['MS','NDT','EM','EL','PB','PDR','PNDR','FDN','FDNe','FDA','Amido','EE','Ca','P','Mg','K','Na','Cl','S','Zn','Cu','Mn','Se','Co','I'];
+
+  const item = {
+    id: editId || generateId(),
+    nome: name,
+    categoria: document.getElementById('ingCat').value,
+    PrecoKg: parseFloat(document.getElementById('ingPreco').value) || 0,
+    UltimaAtualizacao: new Date().toISOString().split('T')[0]
+  };
+  fields.forEach(f => { item[f] = parseFloat(document.getElementById('ing' + f)?.value) || 0; });
+
+  if (editId) {
+    const idx = ings.findIndex(i => i.id === editId);
+    if (idx > -1) ings[idx] = item;
+    toast('success','Atualizado','Ingrediente atualizado!');
+  } else {
+    ings.push(item);
+    toast('success','Adicionado','Ingrediente adicionado ao banco!');
+  }
+
+  saveData(KEYS.ingredients, ings);
+  closeModal('ingModal');
+  clearIngForm();
+  renderIngredients();
+}
+
+function clearIngForm() {
+  document.getElementById('ingEditId').value = '';
+  document.getElementById('ingName').value = '';
+  document.getElementById('ingCat').value = 'Volumosos';
+  const fields = ['Preco','MS','NDT','EM','EL','PB','PDR','PNDR','FDN','FDNe','FDA','Amido','EE','Ca','P','Mg','K','Na','Cl','S','Zn','Cu','Mn','Se','Co','I'];
+  fields.forEach(f => { const el = document.getElementById('ing' + f); if (el) el.value = ''; });
+  document.getElementById('ingModalTitle').textContent = 'Novo Ingrediente';
+}
+
+function editIngredient(id) {
+  const ings = getData(KEYS.ingredients);
+  const ing = ings.find(i => i.id === id);
+  if (!ing) return;
+  document.getElementById('ingEditId').value = ing.id;
+  document.getElementById('ingName').value = ing.nome;
+  document.getElementById('ingCat').value = ing.categoria;
+  document.getElementById('ingPreco').value = ing.PrecoKg || '';
+  const fields = ['MS','NDT','EM','EL','PB','PDR','PNDR','FDN','FDNe','FDA','Amido','EE','Ca','P','Mg','K','Na','Cl','S','Zn','Cu','Mn','Se','Co','I'];
+  fields.forEach(f => { const el = document.getElementById('ing' + f); if (el) el.value = ing[f] || ''; });
+  document.getElementById('ingModalTitle').textContent = 'Editar Ingrediente';
+  openModal('ingModal');
+}
+
+function deleteIngredient(id) {
+  showConfirm('Excluir Ingrediente','Tem certeza que deseja excluir?', () => {
+    let ings = getData(KEYS.ingredients);
+    ings = ings.filter(i => i.id !== id);
+    saveData(KEYS.ingredients, ings);
+    formulaDiet = formulaDiet.filter(f => f.ingredientId !== id);
+    toast('success','Excluído','Ingrediente removido.');
+    renderIngredients();
+  });
+}
+
+function renderIngredients() {
+  const ings = getData(KEYS.ingredients);
+  const search = (document.getElementById('ingSearch')?.value || '').toLowerCase();
+  const catFilter = document.getElementById('ingCatFilterMain')?.value || '';
+
+  let filtered = ings.filter(i => {
+    if (search && !i.nome.toLowerCase().includes(search)) return false;
+    if (catFilter && i.categoria !== catFilter) return false;
+    return true;
+  });
+
+  const tbody = document.getElementById('ingTableBody');
+  const empty = document.getElementById('ingEmpty');
+  if (filtered.length === 0) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = filtered.map(i => `<tr>
+    <td><strong style="font-size:12px">${sanitize(i.nome)}</strong></td>
+    <td><span class="badge badge-teal">${sanitize(i.categoria)}</span></td>
+    <td>${(i.MS||0).toFixed(1)}</td><td>${(i.PB||0).toFixed(1)}</td>
+    <td>${(i.NDT||0).toFixed(1)}</td><td>${(i.FDN||0).toFixed(1)}</td>
+    <td>${(i.Ca||0).toFixed(2)}</td><td>${(i.P||0).toFixed(2)}</td>
+    <td>R$ ${(i.PrecoKg||0).toFixed(2)}</td>
+    <td><div style="display:flex;gap:4px">
+      <button class="btn btn-icon btn-ghost btn-sm" onclick="editIngredient('${i.id}')" title="Editar">✏️</button>
+      <button class="btn btn-icon btn-ghost btn-sm" onclick="deleteIngredient('${i.id}')" title="Excluir">🗑️</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+function renderIngredientSelector() {
+  const ings = getData(KEYS.ingredients);
+  const search = (document.getElementById('ingSearchFormula')?.value || '').toLowerCase();
+  const catFilter = document.getElementById('ingCatFilter')?.value || '';
+
+  let filtered = ings.filter(i => {
+    if (search && !i.nome.toLowerCase().includes(search)) return false;
+    if (catFilter && i.categoria !== catFilter) return false;
+    return true;
+  });
+
+  const tbody = document.getElementById('ingSelectBody');
+  if (!tbody) return;
+
+  tbody.innerHTML = filtered.map(i => {
+    const inDiet = formulaDiet.some(f => f.ingredientId === i.id);
+    return `<tr style="${inDiet ? 'background:var(--primary-bg)' : ''}">
+      <td style="font-size:12px">${sanitize(i.nome)}</td>
+      <td><span class="badge badge-gray" style="font-size:10px">${sanitize(i.categoria)}</span></td>
+      <td>${(i.PB||0).toFixed(1)}</td><td>${(i.NDT||0).toFixed(1)}</td>
+      <td>R$ ${(i.PrecoKg||0).toFixed(2)}</td>
+      <td><button class="btn btn-sm ${inDiet ? 'btn-outline' : 'btn-primary'}" onclick="${inDiet ? `removeFromFormula('${i.id}')` : `addToFormula('${i.id}')`}">${inDiet ? '✓ Na dieta' : '+ Adicionar'}</button></td>
+    </tr>`;
+  }).join('');
+}
+
+/* ============================================
+   BANCO NUTRICIONAL
+   ============================================ */
+function renderBancoNutricional() {
+  const ings = getData(KEYS.ingredients);
+  const search = (document.getElementById('bancoSearch')?.value || '').toLowerCase();
+  const filtered = ings.filter(i => !search || i.nome.toLowerCase().includes(search));
+  const tbody = document.getElementById('bancoBody');
+  tbody.innerHTML = filtered.map(i => `<tr>
+    <td style="font-size:11px;white-space:nowrap"><strong>${sanitize(i.nome)}</strong></td>
+    <td>${(i.MS||0).toFixed(1)}</td><td>${(i.NDT||0).toFixed(1)}</td>
+    <td>${(i.EM||0).toFixed(2)}</td><td>${(i.EL||0).toFixed(2)}</td>
+    <td>${(i.PB||0).toFixed(1)}</td><td>${(i.PDR||0).toFixed(1)}</td>
+    <td>${(i.PNDR||0).toFixed(1)}</td><td>${(i.FDN||0).toFixed(1)}</td>
+    <td>${(i.FDNe||0).toFixed(1)}</td><td>${(i.FDA||0).toFixed(1)}</td>
+    <td>${(i.Amido||0).toFixed(1)}</td><td>${(i.EE||0).toFixed(1)}</td>
+    <td>${(i.Ca||0).toFixed(2)}</td><td>${(i.P||0).toFixed(2)}</td>
+    <td>${(i.Mg||0).toFixed(2)}</td><td>${(i.K||0).toFixed(2)}</td>
+    <td>${(i.Na||0).toFixed(2)}</td><td>${(i.S||0).toFixed(2)}</td>
+  </tr>`).join('');
+}
+
+/* ============================================
+   EXIGÊNCIAS REF TABLE
+   ============================================ */
+function renderExigRef() {
+  const container = document.getElementById('exigRefContainer');
+  const estados = ['crescimento','recria','engorda','terminacao','gestacao','lactacao','manutencao'];
+  const labels = {crescimento:'Crescimento',recria:'Recria',engorda:'Engorda',terminacao:'Terminação',gestacao:'Gestação',lactacao:'Lactação',manutencao:'Manutenção'};
+  const multipliers = {
+    crescimento:{ndt:68,pb:14,fdn:35,ca:0.55,p:0.28},
+    recria:{ndt:65,pb:12,fdn:38,ca:0.45,p:0.25},
+    engorda:{ndt:72,pb:12.5,fdn:28,ca:0.5,p:0.3},
+    terminacao:{ndt:75,pb:13,fdn:25,ca:0.55,p:0.32},
+    gestacao:{ndt:60,pb:11,fdn:42,ca:0.4,p:0.22},
+    lactacao:{ndt:68,pb:14,fdn:35,ca:0.6,p:0.35},
+    manutencao:{ndt:55,pb:7,fdn:50,ca:0.3,p:0.18}
+  };
+
+  let html = '<table><thead><tr><th>Estado Fisiológico</th><th>NDT (%)</th><th>PB (%)</th><th>FDN (%)</th><th>Ca (%)</th><th>P (%)</th></tr></thead><tbody>';
+  estados.forEach(e => {
+    const m = multipliers[e];
+    html += `<tr><td><strong>${labels[e]}</strong></td><td>${m.ndt}</td><td>${m.pb}</td><td>${m.fdn}</td><td>${m.ca}</td><td>${m.p}</td></tr>`;
+  });
+  html += '</tbody></table><p style="margin-top:12px;font-size:11px;color:var(--text-muted)">Valores de referência para bovinos de corte (NRC, adaptado). Os valores são ajustados automaticamente pelo GMD na formulação.</p>';
+  container.innerHTML = html;
+}
+
+/* ============================================
+   CUSTOS
+   ============================================ */
+function renderCosts() {
+  const ings = getData(KEYS.ingredients);
+  const cms = parseFloat(document.getElementById('metaCMS')?.value) || 11.25;
+
+  let totalCostDay = 0;
+  formulaDiet.forEach(f => {
+    const ing = ings.find(x => x.id === f.ingredientId);
+    if (ing) totalCostDay += (f.pctInclusion / 100) * cms * (ing.PrecoKg || 0);
+  });
+
+  document.getElementById('costStats').innerHTML = `
+    <div class="stat green"><div class="stat-info"><h3>Custo/Animal/Dia</h3><div class="stat-val">R$ ${totalCostDay.toFixed(2)}</div></div><div class="stat-icon green">💰</div></div>
+    <div class="stat blue"><div class="stat-info"><h3>Custo/Tonelada</h3><div class="stat-val">R$ ${(cms>0?(totalCostDay/cms)*1000:0).toFixed(0)}</div></div><div class="stat-icon blue">📦</div></div>
+    <div class="stat orange"><div class="stat-info"><h3>Ingredientes Cadastrados</h3><div class="stat-val">${ings.length}</div></div><div class="stat-icon orange">🌾</div></div>
+  `;
+
+  const tbody = document.getElementById('costTableBody');
+  tbody.innerHTML = ings.slice().sort((a,b) => (b.PrecoKg||0)-(a.PrecoKg||0)).map(i => `<tr>
+    <td style="font-size:12px">${sanitize(i.nome)}</td>
+    <td>R$ ${(i.PrecoKg||0).toFixed(2)}</td>
+    <td>R$ ${((i.PrecoKg||0)*60).toFixed(2)}</td>
+    <td>R$ ${((i.PrecoKg||0)*1000).toFixed(0)}</td>
+    <td style="font-size:11px">${i.UltimaAtualizacao||'-'}</td>
+    <td><button class="btn btn-sm btn-outline" onclick="openPriceEdit('${i.id}')">💰 Editar</button></td>
+  </tr>`).join('');
+}
+
+function openPriceEdit(id) {
+  const ings = getData(KEYS.ingredients);
+  const ing = ings.find(i => i.id === id);
+  if (!ing) return;
+  document.getElementById('priceEditId').value = id;
+  document.getElementById('priceIngName').value = ing.nome;
+  document.getElementById('priceKg').value = ing.PrecoKg || '';
+  document.getElementById('priceFornecedor').value = '';
+  openModal('priceModal');
+}
+
+function savePrice() {
+  const id = document.getElementById('priceEditId').value;
+  const price = parseFloat(document.getElementById('priceKg').value) || 0;
+  const ings = getData(KEYS.ingredients);
+  const ing = ings.find(i => i.id === id);
+  if (ing) {
+    ing.PrecoKg = price;
+    ing.UltimaAtualizacao = new Date().toISOString().split('T')[0];
+    saveData(KEYS.ingredients, ings);
+    toast('success','Preço Atualizado','Preço salvo com sucesso.');
+    closeModal('priceModal');
+    renderCosts();
+    recalcFormula();
+  }
+}
+
+function importPrices(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (file.name.endsWith('.csv')) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const lines = e.target.result.split('\n');
+      const ings = getData(KEYS.ingredients);
+      let updated = 0;
+      lines.forEach(line => {
+        const [nome, preco] = line.split(';').map(s => s.trim());
+        if (!nome || !preco) return;
+        const ing = ings.find(i => i.nome.toLowerCase() === nome.toLowerCase());
+        if (ing) { ing.PrecoKg = parseFloat(preco) || ing.PrecoKg; ing.UltimaAtualizacao = new Date().toISOString().split('T')[0]; updated++; }
+      });
+      saveData(KEYS.ingredients, ings);
+      toast('success','Importado',`${updated} preços atualizados via CSV.`);
+      renderCosts();
+    };
+    reader.readAsText(file);
+  } else {
+    toast('info','XLSX','Para importar Excel, salve como CSV (nome;preço) e reimporte.');
+  }
+  event.target.value = '';
+}
+
+/* ============================================
+   REPORTS
+   ============================================ */
+function renderReports() {
+  const container = document.getElementById('reportsList');
+  container.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="padding:12px;background:var(--bg);border-radius:8px;display:flex;justify-content:space-between;align-items:center">
+        <div><strong style="font-size:13px">📋 Formulação Completa</strong><div style="font-size:11px;color:var(--text-muted)">Ingredientes, nutrientes e custos</div></div>
+        <button class="btn btn-sm btn-primary" onclick="generatePDF()">PDF</button>
+      </div>
+      <div style="padding:12px;background:var(--bg);border-radius:8px;display:flex;justify-content:space-between;align-items:center">
+        <div><strong style="font-size:13px">📐 Exigências Nutricionais</strong><div style="font-size:11px;color:var(--text-muted)">Tabela de exigências do animal</div></div>
+        <button class="btn btn-sm btn-outline" onclick="exportExcel()">Excel</button>
+      </div>
+      <div style="padding:12px;background:var(--bg);border-radius:8px;display:flex;justify-content:space-between;align-items:center">
+        <div><strong style="font-size:13px">💰 Análise Econômica</strong><div style="font-size:11px;color:var(--text-muted)">Custos detalhados da dieta</div></div>
+        <button class="btn btn-sm btn-outline" onclick="window.print()">Imprimir</button>
+      </div>
+    </div>
+  `;
+
+  const histContainer = document.getElementById('formulaHistory');
+  const formulas = getData(KEYS.formulas);
+  if (formulas.length === 0) {
+    histContainer.innerHTML = '<div class="empty"><p>Nenhuma formulação salva</p></div>';
+  } else {
+    histContainer.innerHTML = formulas.map(f => `
+      <div style="padding:8px 0;border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between">
+        <div><strong style="font-size:13px">${sanitize(f.name)}</strong><div style="font-size:11px;color:var(--text-muted)">${f.date}</div></div>
+        <span class="badge badge-green">${f.ingredientCount} ingr.</span>
+      </div>
+    `).join('');
+  }
+}
+
+/* ============================================
+   SAVE / LOAD FORMULA
+   ============================================ */
+function saveFormula() {
+  if (formulaDiet.length === 0) { toast('warning','Vazia','Adicione ingredientes à dieta primeiro.'); return; }
+  const name = prompt('Nome da formulação:', 'Formulação ' + new Date().toLocaleDateString('pt-BR'));
+  if (!name) return;
+  const ings = getData(KEYS.ingredients);
+  const cms = parseFloat(document.getElementById('metaCMS')?.value) || 11.25;
+  let costDay = 0;
+  formulaDiet.forEach(f => {
+    const ing = ings.find(x => x.id === f.ingredientId);
+    if (ing) costDay += (f.pctInclusion / 100) * cms * (ing.PrecoKg || 0);
+  });
+
+  const formulas = getData(KEYS.formulas);
+  formulas.push({
+    id: generateId(), name,
+    date: new Date().toLocaleDateString('pt-BR'),
+    diet: [...formulaDiet],
+    ingredientCount: formulaDiet.length,
+    costPerDay: costDay,
+    animal: {
+      especie: document.getElementById('animalEspecie')?.value,
+      peso: document.getElementById('animalPeso')?.value,
+      estado: document.getElementById('animalEstado')?.value
+    }
+  });
+  saveData(KEYS.formulas, formulas);
+  toast('success','Salva','Formulação salva com sucesso!');
+}
+
+function resetFormula() {
+  showConfirm('Limpar Formulação','Deseja limpar toda a dieta atual?', () => {
+    formulaDiet = [];
+    renderFormula();
+    recalcFormula();
+    renderIngredientSelector();
+    toast('info','Limpo','Formulação reiniciada.');
+  });
+}
+
+/* ============================================
+   EXPORT (PDF/Excel placeholder)
+   ============================================ */
+function generatePDF() {
+  toast('info','PDF','Gerando relatório para impressão...');
+  setTimeout(() => window.print(), 500);
+}
+
+function exportExcel() {
+  // Export as CSV
+  const ings = getData(KEYS.ingredients);
+  const headers = ['Nome','Categoria','MS','NDT','EM','EL','PB','PDR','PNDR','FDN','FDNe','FDA','Amido','EE','Ca','P','Mg','K','Na','Cl','S','Zn','Cu','Mn','Se','Co','I','PrecoKg'];
+  let csv = headers.join(';') + '\n';
+  ings.forEach(i => {
+    csv += headers.map(h => i[h] || '').join(';') + '\n';
+  });
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'ingredientes_nutriracao.csv'; a.click();
+  URL.revokeObjectURL(url);
+  toast('success','Exportado','Dados exportados em CSV!');
+}
+
+/* ============================================
+   BACKUP / RESTORE
+   ============================================ */
+function backupData() {
+  const backup = { ingredients: getData(KEYS.ingredients), formulas: getData(KEYS.formulas), formulaDiet, date: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `nutriracao_backup_${new Date().toISOString().split('T')[0]}.json`; a.click();
+  URL.revokeObjectURL(url);
+  toast('success','Backup','Backup salvo com sucesso!');
+}
+
+function restoreData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.ingredients) saveData(KEYS.ingredients, data.ingredients);
+      if (data.formulas) saveData(KEYS.formulas, data.formulas);
+      if (data.formulaDiet) formulaDiet = data.formulaDiet;
+      toast('success','Restaurado','Backup restaurado com sucesso!');
+      renderPageData(currentPage);
+    } catch(err) { toast('error','Erro','Arquivo de backup inválido.'); }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function confirmClear() {
+  showConfirm('Limpar Dados','TODOS os dados serão perdidos!', () => {
+    Object.values(KEYS).forEach(k => localStorage.removeItem(PFX + k));
+    formulaDiet = [];
+    initIngredients();
+    toast('success','Limpo','Dados restaurados para o padrão.');
+    renderPageData(currentPage);
+  });
+}
+
+/* ============================================
+   KEYBOARD SHORTCUTS
+   ============================================ */
+document.addEventListener('keydown', e => {
+  if (document.querySelector('.modal-overlay.active')) return;
+  if (['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) return;
+  if (e.ctrlKey || e.metaKey) {
+    if (e.key === 'k') { e.preventDefault(); document.getElementById('globalSearch').focus(); }
+    if (e.key === 's') { e.preventDefault(); saveFormula(); }
+  }
+});
+
+/* ============================================
+   GLOBAL SEARCH
+   ============================================ */
+document.getElementById('globalSearch').addEventListener('input', function(e) {
+  const q = e.target.value.toLowerCase().trim();
+  if (!q) return;
+  const ings = getData(KEYS.ingredients);
+  if (ings.some(i => i.nome.toLowerCase().includes(q))) {
+    nav('ingredientes');
+    document.getElementById('ingSearch').value = q;
+    renderIngredients();
+  }
+});
+
+/* ============================================
+   INIT
+   ============================================ */
+function init() {
+  loadTheme();
+  initIngredients();
+  calcExigencias();
+  renderDashboard();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+if (document.readyState !== 'loading') init();
+</script>
+</body>
+</html>
